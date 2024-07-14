@@ -49,7 +49,10 @@
             <% if (url.aggregator != -1 && !aggregators[url.aggregator].canFetch) { %>
             <i class="fa-solid fa-x has-text-danger" title="Fetching not supported"></i>
             <% } else { %>
-            <% if (url.status == 0) { %>
+            <% if (url.status == 0 || url.status == 3) { %>
+            <% if (url.aggregator != -1 && aggregators[url.aggregator].canFetch && url.status == 3) { %>
+            <i class="fa-solid fa-triangle-exclamation has-text-danger" title="URL requires manual queue"></i>
+            <% } %>
             <i id="queue-button-<%- url.id %>" class="fa-solid fa-rotate has-text-success" title="Queue scrape" style="cursor: pointer;" onclick="queueScrape(<%- url.id %>)"></i>
             <i id="queued-spinner-<%- url.id %>" class="fa-solid fa-spinner fa-spin has-text-warning hidden" title="Queued"></i>
             <% } else {%>

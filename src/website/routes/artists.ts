@@ -43,6 +43,7 @@ router.get("/", async (req: Request, res: Response) => {
     artists,
     totalPages,
     account: req.account,
+    aggregators: Globals.aggregationManager.aggregators,
     headers: req.headers
   })
 })
@@ -56,6 +57,7 @@ router.get("/listing", async (req: Request, res: Response) => {
     artists,
     totalPages,
     account: req.account,
+    aggregators: Globals.aggregationManager.aggregators,
     utils: Utils,
     headers: req.headers
   })

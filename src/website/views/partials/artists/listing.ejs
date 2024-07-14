@@ -19,7 +19,11 @@
     <tr id="artist-<%- artist.id %>">
       <td><input data-id="<%- artist.id %>" type="checkbox" onchange="selectArtist(event)" /></td>
       <th><a href="/artists/<%- artist.id %>"><%- artist.id %></a></th>
-      <td><a href="/artists/<%- artist.id %>"><%- artist.name %></a></td>
+      <td><a href="/artists/<%- artist.id %>"><%- artist.name %></a>
+        <% if (artist.urlReferences.some(url => url.aggregator != -1 && aggregators[url.aggregator].canFetch && url.status == 3)) { %>
+          <i class="fa-solid fa-triangle-exclamation has-text-danger" title="URL requires manual queue"></i>
+        <% } %>
+      </td>
       <td><%- artist.urls.length %></td>
       <td datetime="<%- artist.lastScrapedAt ? artist.lastScrapedAt.toString() : "Never" %>" data-sort="<%- artist.lastScrapedAt ? artist.lastScrapedAt.getTime().toString() : "0" %>"></td>
       <td><%- submissionReferences.length %></td>
