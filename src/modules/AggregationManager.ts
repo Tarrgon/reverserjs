@@ -131,7 +131,7 @@ class AggregationManager {
       console.error(`Error fetching all for ${artistURL.urlIdentifier} (${artistURL._id})`)
       console.error(e)
       if (job.retryNumber >= 10) {
-        artistURL.setStatus(ArtistURLStatus.DONE)
+        artistURL.setStatus(ArtistURLStatus.DONT_AUTO_QUEUE)
         await Globals.db.collection("aggregationQueue").deleteOne({ jobId: job._id })
         await job.setErrorData(e.toString())
         this.processQueue()
