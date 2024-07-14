@@ -82,7 +82,7 @@ class E621IqdbChecker {
   }
 
   private static async convertToProperSize(buffer: Buffer): Promise<Buffer> {
-    return await sharp(buffer).withIccProfile("srgb").keepIccProfile().flatten({ background: '#000000' }).resize(150, 150, { fit: "inside" }).jpeg({ quality: 87 }).toBuffer()
+    return await sharp(buffer).withIccProfile("srgb").keepIccProfile().flatten({ background: "#000000" }).resize(150, 150, { fit: "inside" }).jpeg({ quality: 87 }).toBuffer()
   }
 
   private static async retryJobs(jobs: Job<string>[]) {

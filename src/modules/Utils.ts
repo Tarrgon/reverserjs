@@ -194,11 +194,11 @@ class Utils {
 
   static getVideoDimensions(filePath: string): { width: number, height: number } | null {
     try {
-      let { stdout } = spawnSync('ffprobe', [
-        '-v', 'error',
-        '-of', 'flat=s=_',
-        '-select_streams', 'v:0',
-        '-show_entries', 'stream=height,width',
+      let { stdout } = spawnSync("ffprobe", [
+        "-v", "error",
+        "-of", "flat=s=_",
+        "-select_streams", "v:0",
+        "-show_entries", "stream=height,width",
         filePath
       ])
 
@@ -642,7 +642,7 @@ class Utils {
   }
 
   static escapeRegexCharacters(string: string): string {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
   }
 
   static isValidUrl(url: string): boolean {

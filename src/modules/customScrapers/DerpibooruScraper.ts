@@ -64,7 +64,7 @@ class DerpibooruScraper {
   }
 
   public static async* getMedia(artistUrl: ArtistURL): AsyncGenerator<DerpiMedia, void> {
-    let path = `search/images`
+    let path = "search/images"
 
     let params: {
       page: number,

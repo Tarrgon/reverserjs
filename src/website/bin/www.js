@@ -103,4 +103,4 @@ require("source-map-support").install();
     // debug("Listening on " + bind) idk
     console.log("Listening on " + bind)
   }
-})();
+})()

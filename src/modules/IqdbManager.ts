@@ -17,7 +17,7 @@ export async function getChannelInfo(input: string | Buffer): Promise<{ r: numbe
   if (info.channels == 2) {
     return {
       error: true,
-      message: `Wrong number of channels.`
+      message: "Wrong number of channels."
     }
   }
 

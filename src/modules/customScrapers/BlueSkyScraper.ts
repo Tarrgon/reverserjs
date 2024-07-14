@@ -17,7 +17,7 @@ class BlueSkyScraper {
       if (!this.blueSkyAgent) {
         this.loggingIn = true
         this.blueSkyAgent = new BskyAgent({
-          service: 'https://bsky.social',
+          service: "https://bsky.social",
         })
 
         await this.blueSkyAgent.login({ identifier: Globals.config.blueSkyAuth.username, password: Globals.config.blueSkyAuth.password })
@@ -30,7 +30,7 @@ class BlueSkyScraper {
 
       return data.data.did
     } catch (e) {
-      console.error(`ERROR GETTING BLUESKY API IDENTIFIER`)
+      console.error("ERROR GETTING BLUESKY API IDENTIFIER")
       console.error(e)
       return null
     }
@@ -44,7 +44,7 @@ class BlueSkyScraper {
         this.loggingIn = true
 
         this.blueSkyAgent = new BskyAgent({
-          service: 'https://bsky.social',
+          service: "https://bsky.social",
         })
 
         await this.blueSkyAgent.login({ identifier: Globals.config.blueSkyAuth.username, password: Globals.config.blueSkyAuth.password })

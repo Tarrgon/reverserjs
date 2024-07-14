@@ -203,7 +203,7 @@ class FurAffinityScraper {
 
       return ids
     } catch (e) {
-      console.error(`ERROR IN FA SCRAPER`)
+      console.error("ERROR IN FA SCRAPER")
       console.error(e)
       return []
     }
@@ -216,7 +216,7 @@ class FurAffinityScraper {
       let ids = await FurAffinityScraper.getSubmissionIds(apiIdentifier, page++)
 
       if (ids.length == 0) {
-        console.log(`BREAK, NO IDS LEFT`)
+        console.log("BREAK, NO IDS LEFT")
         break
       }
 
@@ -227,7 +227,7 @@ class FurAffinityScraper {
           let root: HTMLElement | null = parse(html)
 
           if (root.querySelector(".submission-area.submission-writing")) {
-            console.log(`CONTINUE, FA TEXT SUBMISSION`)
+            console.log("CONTINUE, FA TEXT SUBMISSION")
             continue
           }
 

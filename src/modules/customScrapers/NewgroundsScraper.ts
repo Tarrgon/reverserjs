@@ -175,7 +175,7 @@ class NewgroundsScraper {
           onReject: reject
         })
       } catch (e) {
-        console.error(`ERROR GETTING NEWGROUNDS API IDENTIFIER`)
+        console.error("ERROR GETTING NEWGROUNDS API IDENTIFIER")
         console.error(e)
         return null
       }

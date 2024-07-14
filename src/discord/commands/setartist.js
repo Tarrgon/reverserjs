@@ -1,9 +1,9 @@
 const { SlashCommandBuilder } = require("discord.js")
 
 module.exports = {
-  name: `setartist`,
+  name: "setartist",
   data: new SlashCommandBuilder()
-    .setName(`setartist`)
+    .setName("setartist")
     .setDescription("Set the artist you're uploading to if the author isn't linked")
     .addUserOption((option) =>
       option.setName("user")
@@ -16,11 +16,11 @@ module.exports = {
     let artistId = await client.utils.getLinkedArtistId(interaction.user.id, id)
 
     if (artistId) {
-      return await interaction.reply({ content: `Link user first.`, ephemeral: true })
+      return await interaction.reply({ content: "Link user first.", ephemeral: true })
     }
 
     await client.utils.setUserDefaultArtist(interaction.user.id, id)
 
-    return await interaction.reply({ content: `Default artist set.`, ephemeral: true })
+    return await interaction.reply({ content: "Default artist set.", ephemeral: true })
   }
 }

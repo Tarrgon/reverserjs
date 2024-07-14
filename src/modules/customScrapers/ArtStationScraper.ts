@@ -53,7 +53,7 @@ class ArtStationScraper {
 
       return json.id.toString()
     } catch (e) {
-      console.error(`ERROR GETTING DEVIANT ART API IDENTIFIER`)
+      console.error("ERROR GETTING DEVIANT ART API IDENTIFIER")
       console.error(e)
       return null
     }

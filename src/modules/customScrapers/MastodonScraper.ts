@@ -73,7 +73,7 @@ class MastodonScraper {
       if (data && data.id) return data.id
       return null
     } catch (e) {
-      console.error(`ERROR IN MASTODON SCRAPER`)
+      console.error("ERROR IN MASTODON SCRAPER")
       console.error(e)
       return null
     }
@@ -97,7 +97,7 @@ class MastodonScraper {
 
       //@ts-ignore
       if (data.error) {
-        console.error(`ERROR MAKING MASTODON REQUEST:`)
+        console.error("ERROR MAKING MASTODON REQUEST:")
         // @ts-ignore
         console.error(data.error)
         console.error(path, params)

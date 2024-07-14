@@ -164,7 +164,7 @@ class DeviantArtScraper {
 
         if (!done) {
           await browser.close()
-          console.error(`RETRYING DEVIANT ART AUTH, TIMEOUT`)
+          console.error("RETRYING DEVIANT ART AUTH, TIMEOUT")
           return resolve(await DeviantArtScraper.getAccessToken(true))
         }
         DeviantArtScraper.fetchNewTokensAt = new Date(Date.now() + 3300000)
@@ -180,7 +180,7 @@ class DeviantArtScraper {
       } catch (e) {
         await browser.close()
         // await DeviantArtScraper.puppetServer?.destroy()
-        console.error(`RETRYING DEVIANT ART AUTH`)
+        console.error("RETRYING DEVIANT ART AUTH")
         console.error(e)
         return resolve(await DeviantArtScraper.getAccessToken(true))
       }
@@ -262,7 +262,7 @@ class DeviantArtScraper {
 
           if (!res.ok) {
             let text = await res.text()
-            console.error(`STUPID FUCKING DEVIANT ART ERROR LETS FUCKING GO`)
+            console.error("STUPID FUCKING DEVIANT ART ERROR LETS FUCKING GO")
             console.error(text)
             console.error(url.toString())
             onReject(new Error(text))
@@ -277,7 +277,7 @@ class DeviantArtScraper {
           return resolve()
         },
         onReject: (e) => {
-          console.error(`STUPID FUCKING DEVIANT ART ERROR LETS FUCKING GO`)
+          console.error("STUPID FUCKING DEVIANT ART ERROR LETS FUCKING GO")
           console.error(e)
           console.error(url.toString())
           onReject(e)
@@ -304,7 +304,7 @@ class DeviantArtScraper {
       if (json.error_code == 2) return null
       return json.user.userid
     } catch (e) {
-      console.error(`ERROR GETTING DEVIANT ART API IDENTIFIER`)
+      console.error("ERROR GETTING DEVIANT ART API IDENTIFIER")
       console.error(e)
       return null
     }
@@ -339,7 +339,7 @@ class DeviantArtScraper {
       let data = json.results.filter(d => d?.content)
 
       if (data.length == 0) {
-        console.log(`BREAK, NO DEVIATIONS`)
+        console.log("BREAK, NO DEVIATIONS")
         break
       }
 
@@ -351,7 +351,7 @@ class DeviantArtScraper {
       }
 
       if (!json.has_more) {
-        console.log(`BREAK, NO MORE DEVIATIONS`)
+        console.log("BREAK, NO MORE DEVIATIONS")
         break
       }
       // console.log("YIELDED ALL")

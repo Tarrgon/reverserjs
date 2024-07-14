@@ -7,7 +7,7 @@ const CLICK_DELAY = 100
 const TYPE_DELAY = 100
 
 const SHOT_OPTS = {
-  type: 'jpeg',
+  type: "jpeg",
   quality: 90,
 } as ScreenshotOptions
 
@@ -58,7 +58,7 @@ export class PuppetServer {
       try {
         mjpeg.write(this.state.latestShot)
       } catch (e) {
-        console.warn(`Error on send MJPEG frame to client`, e, { mjpeg, ip })
+        console.warn("Error on send MJPEG frame to client", e, { mjpeg, ip })
       }
     })
     clearInterval(this.interval)
@@ -175,7 +175,7 @@ export class PuppetServer {
       }
     `)
 
-    return mr.join('\n')
+    return mr.join("\n")
   }
 
   private async broadcastShot() {
@@ -190,7 +190,7 @@ export class PuppetServer {
         try {
           mjpeg.write(this.state.latestShot)
         } catch (e) {
-          console.warn(`Error on send MJPEG frame to client`, e, { mjpeg, ip })
+          console.warn("Error on send MJPEG frame to client", e, { mjpeg, ip })
         }
       })
     } catch (e) { }
@@ -249,7 +249,7 @@ export class PuppetServer {
             break
           }
         default:
-          console.warn(`Error with action`, action)
+          console.warn("Error with action", action)
           throw new TypeError(`sendAction received unknown action of type: ${action.type}`)
       }
     } catch { }

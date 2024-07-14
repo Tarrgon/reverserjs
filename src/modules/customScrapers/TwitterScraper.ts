@@ -147,7 +147,7 @@ class TwitterScraper {
       return { authToken: TwitterScraper.authToken, csrfToken: TwitterScraper.csrfToken }
     } catch (e) {
       await browser.close()
-      console.error(`RETRYING TWITTER AUTH`)
+      console.error("RETRYING TWITTER AUTH")
       console.error(e)
       return await TwitterScraper.getTokens(true)
     }
@@ -216,7 +216,7 @@ class TwitterScraper {
       let json = await TwitterScraper.makeRequest("xmU6X_CKVnQ5lSrCbAmJsg/UserByScreenName", { variables, features, field_toggles: fieldToggles }, urlIdentifier)
       return json?.data?.user?.result?.rest_id
     } catch (e) {
-      console.error(`ERROR IN TWITTER SCRAPER`)
+      console.error("ERROR IN TWITTER SCRAPER")
       console.error(e)
       return null
     }
@@ -307,14 +307,14 @@ class TwitterScraper {
       // console.log(`GOT JSON`)
 
       if (json?.data?.user?.result?.__typename == "UserUnavailable") {
-        console.log(`BREAK, NO USER`)
+        console.log("BREAK, NO USER")
         break
       }
 
       let { tweets, cursor: curs } = TwitterScraper.extractTweetsAndCursorEntry(json)
 
       if (tweets.length == 0) {
-        console.log(`BREAK, NO TWEETS`)
+        console.log("BREAK, NO TWEETS")
         break
       }
 

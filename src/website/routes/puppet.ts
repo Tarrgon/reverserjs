@@ -19,7 +19,7 @@ function testMobile(ua = "") {
   ]
 
   return toMatch.some((toMatchItem) => {
-    return ua.match(toMatchItem);
+    return ua.match(toMatchItem)
   })
 }
 

@@ -21,6 +21,8 @@ module.exports = tseslint.config(
       "prefer-const": "off",
       "no-async-promise-executor": "off",
       "@typescript-eslint/no-var-requires": "off",
+      "quotes": ["error", "double", { "avoidEscape": true }],
+      "semi": ["error", "never"]
     }
   },
   {
