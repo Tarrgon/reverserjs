@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Sligthly modified from https://github.com/dimapaloskin/detect-file-type
 
 const fs = require('fs');
@@ -85,7 +86,7 @@ class DetectFileType {
   }
 
   /** @private */
-  static _detect(buffer, rules, type, searchData, tryTextBuffer) {
+  static _detect(buffer, rules, type, searchData) {
     if (!type) {
       type = 'and';
     }

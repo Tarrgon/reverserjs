@@ -1,15 +1,15 @@
-const { ModalBuilder, SlashCommandBuilder, TextInputStyle, TextInputBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, AttachmentBuilder, ContextMenuCommandBuilder, ApplicationCommandType } = require("discord.js")
+const { SlashCommandBuilder } = require("discord.js")
 
 module.exports = {
   name: `setartist`,
   data: new SlashCommandBuilder()
     .setName(`setartist`)
     .setDescription("Set the artist you're uploading to if the author isn't linked")
-    .addUserOption((option) => 
+    .addUserOption((option) =>
       option.setName("user")
-      .setDescription("The discord user of the artist")
-      .setRequired(true)
-  ),
+        .setDescription("The discord user of the artist")
+        .setRequired(true)
+    ),
   handler: async function (client, interaction) {
     let id = interaction.options.getUser("user").id
 

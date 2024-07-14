@@ -1,4 +1,4 @@
-const { ModalBuilder, SlashCommandBuilder, TextInputStyle, TextInputBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, AttachmentBuilder, ContextMenuCommandBuilder, ApplicationCommandType } = require("discord.js")
+const { ContextMenuCommandBuilder, ApplicationCommandType } = require("discord.js")
 
 module.exports = {
   name: `Import media`,
@@ -27,7 +27,8 @@ module.exports = {
 
     await interaction.deferReply({ ephemeral: true })
 
-    for (let [id, attachment] of message.attachments) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (let [_, attachment] of message.attachments) {
       promises.push(new Promise(async resolve => {
         try {
           let directUrl = attachment.url

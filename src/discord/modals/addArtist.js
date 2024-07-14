@@ -1,5 +1,3 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, AttachmentBuilder } = require("discord.js")
-
 module.exports = {
   name: "add-artist",
   handler: async function (client, interaction, artistDiscordId) {

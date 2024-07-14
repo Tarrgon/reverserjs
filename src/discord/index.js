@@ -1,4 +1,4 @@
-const { Client, WebhookClient, IntentsBitField, GatewayIntentBits, Partials, CommandInteractionOptionResolver, MessageMentions, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, EmbedBuilder } = require("discord.js")
+const { Client } = require("discord.js")
 const { MongoClient } = require("mongodb")
 const fs = require("fs")
 
@@ -8,7 +8,7 @@ console.log("Starting...")
 
 const config = require(`${__dirname}/../config.json`)
 
-const client = new Client({ intents: [ "Guilds" ], rest: { timeout: 30000 } })
+const client = new Client({ intents: ["Guilds"], rest: { timeout: 30000 } })
 
 
 const commands = []

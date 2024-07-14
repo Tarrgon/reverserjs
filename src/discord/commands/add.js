@@ -1,4 +1,4 @@
-const { ModalBuilder, SlashCommandBuilder, TextInputStyle, TextInputBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, AttachmentBuilder, ContextMenuCommandBuilder, ApplicationCommandType } = require("discord.js")
+const { ModalBuilder, TextInputStyle, TextInputBuilder, ActionRowBuilder, ContextMenuCommandBuilder, ApplicationCommandType } = require("discord.js")
 
 module.exports = {
   name: `Add user`,

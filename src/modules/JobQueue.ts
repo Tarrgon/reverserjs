@@ -5,7 +5,7 @@ function sortedIndex<T>(array: Job<T>[], value: Job<T>): number {
       high = array.length
 
   while (low < high) {
-      var mid = (low + high) >>> 1
+      let mid = (low + high) >>> 1
       if (array[mid].priority < value.priority || array[mid].retryNumber < value.retryNumber) {
         high = mid
       }

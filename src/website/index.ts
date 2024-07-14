@@ -39,7 +39,6 @@ declare global {
       account?: Account
     }
   }
-
 }
 
 module.exports = async () => {
@@ -158,6 +157,7 @@ module.exports = async () => {
     // routers
     for (let p of fs.readdirSync(path.join(__dirname, "routes"))) {
       if (!p.endsWith(".js")) continue
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       let data = require(path.join(__dirname, "routes", p)).default()
       app.use(data.path, data.router)
     }

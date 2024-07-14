@@ -59,7 +59,7 @@ export function sortedIndex(array: WithPriority<any>[], value: WithPriority<any>
     high = array.length
 
   while (low < high) {
-    var mid = (low + high) >>> 1
+    let mid = (low + high) >>> 1
     if (array[mid].priority! < value.priority!) {
       high = mid
     } else {

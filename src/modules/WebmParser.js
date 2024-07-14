@@ -98,7 +98,7 @@ class WebmParser {
 
   static setupTagDictionary() {
     // T - Element Type - The form of data the element contains. m: Master, u: unsigned int, i: signed integer, s: string, 8: UTF-8 string, b: binary, f: float, d: date
-    WebmParser.TAG_DICT = new Array();
+    WebmParser.TAG_DICT = [];
 
     WebmParser.TAG_DICT['[1A][45][DF][A3]'] = 'EBML'; // EBML 0	[1A][45][DF][A3] m
     WebmParser.TAG_DICT['[42][86]'] = 'EBMLVersion'; //EBMLVersion	1	[42][86] u
@@ -145,7 +145,6 @@ class WebmParser {
 
   static scanWebmTag(buff, pos) {
     let tagSize = 0;
-    let followByte;
     let firstByte = buff.readUInt8(pos);
     let firstMask = 0xff;
 
@@ -173,7 +172,6 @@ class WebmParser {
 
   static scanDataSize(buff, pos) {
     let dataSizeSize = 0;
-    let followByte;
     let firstByte = buff.readUInt8(pos);
     let firstMask;
 

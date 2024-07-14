@@ -45,7 +45,7 @@ class Globals {
   static siteArtistIdentifier: string = "(?<artistIdentifier>[^\\/?&#]*)"
   static prefix: string = "^(https?:\\/\\/)?(www\\.)?"
   static remaining: string = ".*?"
-  static pixivLang: string = "([a-zA-Z]{2}\/)?"
+  static pixivLang: string = "([a-zA-Z]{2}\\/)?"
 
   static saveConfig() {
     fs.writeFileSync(Globals.configPath, JSON.stringify(Globals.config, null, 2))

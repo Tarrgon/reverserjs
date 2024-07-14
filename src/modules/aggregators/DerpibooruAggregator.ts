@@ -23,7 +23,7 @@ class ArtStationAggregator implements Aggregator {
     `derpibooru\\.org\\/tags\\/artist\\-colon\\-${Globals.siteArtistIdentifier}`,
   ].map(r => new RegExp(`${Globals.prefix}${r}\\/?${Globals.remaining}\\??${Globals.remaining}#?${Globals.remaining}`))
 
-  usernameIdentifierRegex: RegExp = /[a-zA-Z0-9_\-\.\s]{1,30}/
+  usernameIdentifierRegex: RegExp = /[a-zA-Z0-9_\-.\s]{1,30}/
 
   submissionTemplate: string = "https://derpibooru.org/images/{siteSubmissionIdentifier}"
 

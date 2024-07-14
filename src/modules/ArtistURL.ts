@@ -144,6 +144,8 @@ class ArtistURL {
         else await Globals.db.collection("artistUrls").updateOne({ _id: this._id }, { $set: { status: ArtistURLStatus.DONE } })
       }
     } catch (e) {
+      console.error(`Error fetching all for: ${job.jobData}`)
+      console.error(e)
       throw e
     }
   }

@@ -25,7 +25,7 @@ class ArtStationAggregator implements Aggregator {
     `${Globals.siteArtistIdentifier}\\.artstation\\.com\\/?`,
   ].map(r => new RegExp(`${Globals.prefix}${r}\\/?${Globals.remaining}\\??${Globals.remaining}#?${Globals.remaining}`))
 
-  usernameIdentifierRegex: RegExp = /[a-zA-Z0-9_\-]{3,63}/
+  usernameIdentifierRegex: RegExp = /[a-zA-Z0-9_-]{3,63}/
 
   submissionTemplate: string = "https://www.artstation.com/artwork/{siteSubmissionIdentifier}"
 
