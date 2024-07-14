@@ -1,0 +1,269 @@
+<script>
+  <% if (active == "Listing") { %>
+  async function afterQueueScrape(event, id) {
+
+  }
+
+  async function afterWatch(event, id) {
+    let watchButton = document.getElementById(`watch-${id}`)
+    let unwatchButton = document.getElementById(`unwatch-${id}`)
+    watchButton.classList.add("hidden")
+    unwatchButton.classList.remove("hidden")
+  }
+
+  async function afterUnwatch(event, id) {
+    let watchButton = document.getElementById(`watch-${id}`)
+    let unwatchButton = document.getElementById(`unwatch-${id}`)
+    watchButton.classList.remove("hidden")
+    unwatchButton.classList.add("hidden")
+  }
+
+  async function afterQueueSelected(event, ids) {
+
+  }
+
+  async function afterWatchSelected(event, ids) {
+    for (let id of ids) {
+      let watchButton = document.getElementById(`watch-${id}`)
+      let unwatchButton = document.getElementById(`unwatch-${id}`)
+      watchButton.classList.add("hidden")
+      unwatchButton.classList.remove("hidden")
+    }
+  }
+
+  async function afterUnwatchSelected(event, ids) {
+    for (let id of ids) {
+      let watchButton = document.getElementById(`watch-${id}`)
+      let unwatchButton = document.getElementById(`unwatch-${id}`)
+      watchButton.classList.remove("hidden")
+      unwatchButton.classList.add("hidden")
+    }
+  }
+  <% } else if (active == "Watched") { %>
+  async function afterQueueScrape(event, id) {
+
+  }
+
+  async function afterWatch(event, id) {
+
+  }
+
+  async function afterUnwatch(event, id) {
+    document.getElementById(`artist-${id}`).remove()
+  }
+
+  async function afterQueueSelected(event, ids) {
+
+  }
+
+  async function afterWatchSelected(event, ids) {
+
+  }
+
+  async function afterUnwatchSelected(event, ids) {
+    for (let id of ids) document.getElementById(`artist-${id}`).remove()
+  }
+  <% } %>
+  async function queueScrape(event, id) {
+    let res = await fetch("/artists/queue", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id
+      })
+    })
+
+    if (!res.ok) alert("Error queuing scrape.")
+    else afterQueueScrape(event, id)
+  }
+
+  async function watch(event, id) {
+    let res = await fetch("/account/artists", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id
+      })
+    })
+
+    if (!res.ok) alert("Error adding artist to watch list.")
+    else afterWatch(event, id)
+  }
+
+  async function unwatch(event, id) {
+    let res = await fetch("/account/artists", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id
+      })
+    })
+
+    if (!res.ok) alert("Error removing artist from watch list.")
+    else afterUnwatch(event, id)
+  }
+
+  function getSelected() {
+    return Array.from(document.querySelectorAll("td > input[type='checkbox']")).filter(c => c.checked).map(c => parseInt(c.getAttribute("data-id")))
+  }
+
+  async function queueSelected(event) {
+    let ids = getSelected()
+
+    if (ids.length == 0) return
+
+    let res = await fetch("/artists/queue/many", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ids
+      })
+    })
+
+    if (!res.ok) alert("Error queuing scrape.")
+    else afterQueueSelected(event, ids)
+  }
+
+  async function watchSelected(event) {
+    let ids = getSelected()
+
+    if (ids.length == 0) return
+
+    let res = await fetch("/account/artists/many", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ids
+      })
+    })
+
+    if (!res.ok) alert("Error adding artist to watch list.")
+    else afterWatchSelected(event, ids)
+  }
+
+  async function unwatchSelected(event) {
+    let ids = getSelected()
+
+    if (ids.length == 0) return
+
+    let res = await fetch("/account/artists/many", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ids
+      })
+    })
+
+    if (!res.ok) alert("Error removing artist from watch list.")
+    else afterUnwatchSelected(event, ids)
+  }
+
+  async function deleteArtist(event, artistId) {
+    let res = await fetch(`/artists/${artistId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+
+    if (!res.ok) {
+      console.error(`Status: ${res.status}`)
+      console.error(await res.text())
+      alert("Error deleting artist Check console.")
+    }
+    else afterDelete(event, id)
+  }
+
+  function selectAll(event) {
+    if (event.target.checked) {
+      for (let checkbox of document.querySelectorAll("input[type='checkbox']")) {
+        checkbox.checked = true
+      }
+    } else {
+      for (let checkbox of document.querySelectorAll("input[type='checkbox']")) {
+        checkbox.checked = false
+        checkbox.indeterminate = false
+      }
+    }
+  }
+
+  function selectArtist(event) {
+    let mainCheckboxes = document.querySelectorAll("th > input[type='checkbox']")
+    let anyNotChecked = Array.from(document.querySelectorAll("td > input[type='checkbox']")).some(c => !c.checked)
+    let allChecked = Array.from(document.querySelectorAll("td > input[type='checkbox']")).every(c => c.checked)
+    let allNotChecked = Array.from(document.querySelectorAll("td > input[type='checkbox']")).every(c => !c.checked)
+    if (allChecked) {
+      mainCheckboxes.forEach(checkbox => checkbox.checked = true)
+      mainCheckboxes.forEach(checkbox => checkbox.indeterminate = false)
+    } else if (allNotChecked) {
+      mainCheckboxes.forEach(checkbox => checkbox.checked = false)
+      mainCheckboxes.forEach(checkbox => checkbox.indeterminate = false)
+    } else if (anyNotChecked) {
+      mainCheckboxes.forEach(checkbox => checkbox.checked = false)
+      mainCheckboxes.forEach(checkbox => checkbox.indeterminate = true)
+    }
+  }
+
+  function importArtists() {
+    let input = document.createElement("input")
+    input.type = "file"
+    input.accept = "application/json"
+    input.addEventListener("change", async (ev) => {
+      let file = input.files[0]
+
+      if (file) {
+        let data = JSON.parse(await file.text())
+        for (let artist of data) {
+          let res = await fetch("/artists/new", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              name: artist.name,
+              urls: artist.urls
+            })
+          })
+        }
+
+        window.location.reload()
+      }
+    })
+    input.click()
+  }
+
+  async function exportArtists() {
+    let ids = getSelected()
+
+    let artists = []
+
+    for (let id of ids) {
+      let res = await fetch(`/artists/${id}.json`)
+      artists.push(await res.json())
+    }
+
+    let blob = new Blob([JSON.stringify(artists.map(a => ({
+      name: a.name,
+      urls: a.urlReferences.map(u => u.url)
+    })))], {
+      type: "text/plain"
+    })
+
+    let a = document.createElement("a")
+    a.href = URL.createObjectURL(blob)
+    a.setAttribute("download", "artists.json")
+    a.click()
+  }
+</script>

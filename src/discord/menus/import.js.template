@@ -1,0 +1,8 @@
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField, AttachmentBuilder } = require("discord.js")
+
+module.exports = {
+  name: "import",
+  handler: async function (client, interaction, extra) {
+    
+  }
+}

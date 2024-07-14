@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Yiff Today - Aggregation</title>
+
+  <%- include("../partials/head", {navData: {active: "Artists"}}); %>
+</head>
+
+<body>
+  <%- include("../partials/nav", {navData: {active: "Artists"}}); %>
+
+  <div class="mx-6">
+    <div class="level ml-3 artist-link">
+      <div class="level-left">
+        <div class="level-item">
+          <h1 id="artist-name" class="is-size-1 has-text-light mr-1"><%- artist.name %></h1>
+
+          <i id="edit-name-button" class="fa-solid fa-pen-to-square has-text-info" title="Edit name" style="cursor: pointer;" onclick="beginArtistNameEdit()"></i>
+          <i id="save-name-button" class="fa-solid fa-floppy-disk has-text-success hidden mr-1" title="Save edit" style="cursor: pointer;" onclick="saveArtistNameEdit(<%- artist.id %>)"></i>
+          <i id="discard-name-button" class="fa-solid fa-bomb has-text-danger hidden" title="Discard edit" style="cursor: pointer;" onclick="discardArtistNameEdit()"></i>
+          <a class="ml-2" target="_blank" href="https://e621.net/artists/<%- artist.name.replaceAll(" ", "_")?.toLowerCase() %>"><i class="fa-solid fa-arrow-up-right-from-square has-text-info"></i></a>
+        </div>
+      </div>
+    </div>
+    <br />
+    <div class="level ml-3 artist-link mb-0">
+      <div class="level-left">
+        <div class="level-item">
+          <h4 class="is-size-4 has-text-light mr-1">Links</h4>
+          <i class="fa-solid fa-plus has-text-info" style="cursor: pointer;" onclick="beginUrlAdd(<%- artist.id %>)"></i>
+        </div>
+      </div>
+    </div>
+    <% for (let url of artist.urlReferences) { %>
+    <div id="url-<%- url.id %>" class="level ml-3 artist-link">
+      <div class="level-left">
+        <div class="level-item">
+          <span class="site-icon-wrapper mr-1">
+            <a title="<%- url.aggregator != -1 ? aggregators[url.aggregator].displayName : "" %> - <%- url.urlIdentifier || artist.name %>" href="<%- url.url %>">
+              <span class="site-icon" style="--icon-index: <%- url.aggregator %>"></span>
+            </a>
+          </span>
+          <span class="mr-1">
+            <a href="<%- url.url %>" class="is-size-5"><%- url.urlIdentifier || artist.name %></a>
+          </span>
+          <span>
+            <% if (url.aggregator != -1 && !aggregators[url.aggregator].canFetch) { %>
+            <i class="fa-solid fa-x has-text-danger" title="Fetching not supported"></i>
+            <% } else { %>
+            <% if (url.status == 0) { %>
+            <i id="queue-button-<%- url.id %>" class="fa-solid fa-rotate has-text-success" title="Queue scrape" style="cursor: pointer;" onclick="queueScrape(<%- url.id %>)"></i>
+            <i id="queued-spinner-<%- url.id %>" class="fa-solid fa-spinner fa-spin has-text-warning hidden" title="Queued"></i>
+            <% } else {%>
+            <i class="fa-solid fa-spinner fa-spin has-text-warning" title="<%- url.status == 1 ? "Queued" : "Scraping" %>"></i>
+            <% } %>
+            <% } %>
+            <i class="fa-solid fa-trash has-text-danger" title="Remove url" style="cursor: pointer;" onclick="removeUrlFromArtist(<%- artist.id %>, <%- url.id %>)"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+    <% } %>
+    <br />
+
+    <div class="level ml-3 artist-link mb-0">
+      <div class="level-left">
+        <div class="level-item">
+          <h4 class="is-size-4 has-text-light mr-1">Notes</h4>
+          <i class="fa-solid fa-plus has-text-info" style="cursor: pointer;" onclick="beginNoteAdd(<%- artist.id %>)"></i>
+        </div>
+      </div>
+    </div>
+    <% for (let i = 0; i < artist.noteReferences.length; i++) { 
+      let note = artist.noteReferences[i]
+    %>
+    <div id="note-<%- i %>" class="level ml-3 artist-link">
+      <div class="level-left">
+        <div class="level-item">
+          <span class="mr-1">
+            <span class="is-size-5 has-text-info"><%- note.noter %>:</span>
+          </span>
+          <span class="mr-1" style="padding: 0.5rem; outline: 1px solid white;">
+            <span class="is-size-5"><%- note.content.split("\n").join("<br />") %></span>
+          </span>
+          <span>
+            <i class="fa-solid fa-trash has-text-danger" title="Remove note" style="cursor: pointer;" onclick="removeNoteFromArtist(<%- artist.id %>, <%- i %>)"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+    <% } %>
+    <br />
+
+    <h3 class="is-size-3 has-text-light">Submissions</h3>
+    <%- include("../partials/submissions/listing", {options: {enableSearch: true, includeScore: false} }) %>
+  </div>
+  <script src="/js/submissions/fullListing.js"></script>
+  <script src="/js/artists/artist.js"></script>
+</body>
+
+</html>

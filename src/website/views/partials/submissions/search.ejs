@@ -1,0 +1,301 @@
+<div id="search-container" class="mt-3 mb-6 mx-6 hidden">
+  <!-- <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">Status</label>
+    </div>
+    <div class="column">
+      <div class="select">
+        <select name="status" onchange="statusSelectChanged(event)">
+          <option selected value=""></option>
+          <option value="notUploaded">Not uploaded</option>
+          <option value="alreadyUploaded">Already uploaded</option>
+          <option value="exactMatch">Exact match</option>
+          <option value="largerDimensions" data-open="file-dimensions-threshold-container">Larger dimensions</option>
+          <option value="largerFileSize" data-open="file-size-threshold-container">Larger file size</option>
+          <option value="betterFileType">Better file type</option>
+        </select>
+      </div>
+    </div>
+  </div> -->
+
+  <div class="columns is-vcentered is-multiline">
+    <div class="column is-1">
+      <label class="label has-text-right">Status</label>
+    </div>
+    <div id="status" class="column is-11">
+      <div class="field is-grouped is-grouped-multiline">
+        <p class="control" name="status[]">
+          <button id="notUploaded" value="notUploaded" class="button" onclick="toggleSelected(event, 'notUploaded')">
+            <span>
+              Not uploaded
+            </span>
+          </button>
+        </p>
+
+        <p class="control" name="status[]">
+          <button id="alreadyUploaded" value="alreadyUploaded" class="button" onclick="toggleSelected(event, 'alreadyUploaded')">
+            <span>
+              Already uploaded
+            </span>
+          </button>
+        </p>
+
+        <p class="control" name="status[]">
+          <button id="exactMatch" value="exactMatch" class="button" data-can-negate="true" onclick="toggleSelected(event, 'exactMatch')">
+            <span>
+              Exact match
+            </span>
+          </button>
+        </p>
+
+        <p class="control" name="status[]">
+          <button id="largerDimensions" value="largerDimensions" class="button" onclick="toggleSelected(event, 'largerDimensions')">
+            <span>
+              Larger dimensions
+            </span>
+          </button>
+        </p>
+
+        <p class="control" name="status[]">
+          <button id="largerFileSize" value="largerFileSize" class="button" onclick="toggleSelected(event, 'largerFileSize')">
+            <span>
+              Larger file size
+            </span>
+          </button>
+        </p>
+
+        <p class="control" name="status[]">
+          <button id="betterFileType" value="betterFileType" class="button" onclick="toggleSelected(event, 'betterFileType')">
+            <span>
+              Better file type
+            </span>
+          </button>
+        </p>
+
+        <p class="control" name="status[]">
+          <button id="sameFileType" value="sameFileType" class="button" onclick="toggleSelected(event, 'sameFileType')">
+            <span>
+              Same file type
+            </span>
+          </button>
+        </p>
+      </div>
+    </div>
+    <div class="column is-offset-1">
+      <button class="button" onclick="expandOrCollapse(event, 'status')">
+        <span id="collapse">
+          <i class="fa-solid fa-caret-up"></i>
+          <span class="has-text-light is-size-6 ml-1">
+            Collapse
+          </span>
+        </span>
+        <span id="expand" class="hidden">
+          <i class="fa-solid fa-caret-down"></i>
+          <span class="has-text-light is-size-6 ml-1">
+            Expand
+          </span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">Status type</label>
+    </div>
+    <div class="column">
+      <div class="select">
+        <select name="statusType">
+          <option selected value="includeDeleted">Include Deleted</option>
+          <option value="excludeDeleted">Exclude Deleted</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="columns is-vcentered hidden" id="file-size-threshold-container">
+    <div class="column is-offset-1">
+      <div class="field has-addons">
+        <p class="control">
+          <span class="select">
+            <select name="fileSizeThresholdType">
+              <option value="percent" selected>%</option>
+              <option value="kb">KB</option>
+              <option value="mb">MB</option>
+            </select>
+          </span>
+        </p>
+        <p class="control">
+          <input name="fileSizeThreshold" class="input" type="number" placeholder="Larger size threshold">
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="columns is-vcentered hidden" id="file-dimensions-threshold-container">
+    <div class="column is-offset-1">
+      <div class="field has-addons">
+        <p class="control">
+          <span class="select">
+            <select name="fileDimensionsThresholdType">
+              <option value="percent" selected>%</option>
+              <option value="width">Width</option>
+              <option value="height">Height</option>
+            </select>
+          </span>
+        </p>
+        <p class="control">
+          <input name="fileDimensionsThreshold" class="input" type="number" placeholder="Larger dimensions threshold">
+        </p>
+      </div>
+    </div>
+  </div> -->
+
+  <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">Content type</label>
+    </div>
+    <div class="column">
+      <div class="select">
+        <select name="contentType">
+          <option selected value=""></option>
+          <option value="picturesOnly">Pictures only</option>
+          <option value="animationOnly">Animation only</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="columns is-vcentered is-multiline">
+    <div class="column is-1">
+      <label class="label has-text-right">Sites</label>
+    </div>
+    <div id="sites" class="column is-11">
+      <div class="field is-grouped is-grouped-multiline">
+        <% for (let aggregator of aggregators) { %>
+        <% if (aggregator && aggregator.canSearch) { %>
+        <p class="control" name="sites[]">
+          <button id="site-<%- aggregator.index %>" value="<%- aggregator.index %>" class="button" onclick="toggleSelected(event, 'site-<%- aggregator.index %>')">
+            <span class="site-icon-wrapper">
+              <span class="site-icon mr-1" style="--icon-index: <%- aggregator.index %>"></span>
+              <span><%- aggregator.displayName %></span>
+            </span>
+          </button>
+        </p>
+        <% } %>
+        <% } %>
+      </div>
+    </div>
+    <div class="column is-offset-1">
+      <button class="button" onclick="expandOrCollapse(event, 'sites')">
+        <span id="collapse">
+          <i class="fa-solid fa-caret-up"></i>
+          <span class="has-text-light is-size-6 ml-1">
+            Collapse
+          </span>
+        </span>
+        <span id="expand" class="hidden">
+          <i class="fa-solid fa-caret-down"></i>
+          <span class="has-text-light is-size-6 ml-1">
+            Expand
+          </span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">In backlog?</label>
+    </div>
+    <div class="column">
+      <div class="select">
+        <select name="inBacklog">
+          <option selected value=""></option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">Hidden?</label>
+    </div>
+    <div class="column">
+      <div class="select">
+        <select name="hidden">
+          <option selected value=""></option>
+          <option value="hiddenOnly">Hidden only</option>
+          <option value="include">Include</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">Deleted?</label>
+    </div>
+    <div class="column">
+      <div class="select">
+        <select name="deleted">
+          <option selected value=""></option>
+          <option value="deletedOnly">Deleted only</option>
+          <option value="include">Include</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">Limit</label>
+    </div>
+    <div class="column is-1">
+      <input name="limit" class="input" type="number" value="75" placeholder="Limit results">
+    </div>
+  </div>
+
+  <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">Title includes</label>
+    </div>
+    <div class="column is-2">
+      <input name="titleIncludes" class="input" type="text">
+    </div>
+  </div>
+
+  <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">Description includes</label>
+    </div>
+    <div class="column is-3">
+      <textarea name="descriptionIncludes" class="input"></textarea>
+    </div>
+  </div>
+
+  <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">Order</label>
+    </div>
+    <div class="column">
+      <div class="select">
+        <select name="order">
+          <option value="newestFirst" selected>Newest first</option>
+          <option value="oldestFirst">Oldest first</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="columns is-vcentered">
+    <button class="button is-info" onclick="search()">Search</button>
+  </div>
+</div>
+
+<button id="open-search-options" onclick="openSearchOptions()" class="button is-warning ml-3">Open search options</button>
+<button id="close-search-options" onclick="closeSearchOptions()" class="button is-warning hidden ml-3">Close search options</button>
+
+<script src="/js/submissions/search.js"></script>

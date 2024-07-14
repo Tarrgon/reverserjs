@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Yiff Today - Aggregation</title>
+
+  <%- include("../partials/head", {navData: {active: "Artists"}}); %>
+</head>
+
+<body>
+  <%- include("../partials/nav", {navData: {active: "Artists", subactive: "New"}}); %>
+
+  <section class="hero is-fullheight">
+    <div class="hero-body">
+      <div class="container">
+        <p class="title has-text-centered">Add new artist<br /><span class="has-text-grey is-size-7">Please ensure your artist isn't <a class="has-text-grey-light is-underlined" href="/artists/listing">already listed</a></span></p>
+        <div class="columns is-centered">
+          <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+            <form class="box">
+              <div class="field">
+                <label for="" class="label">Name<br /><span class="has-text-grey is-size-7">For best results, use the artist tag on e621 with spaces instead of underscores. Capitalization is fine, too</span></label>
+                <div class="control has-icons-left">
+                  <input type="text" class="input" id="name" name="name">
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-paintbrush"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="" class="label">URLs<br /><span class="has-text-grey is-size-7">one per line</span></label>
+                <div class="control">
+                  <textarea class="input" id="urls" name="urls" style="min-height: 5.5em;"></textarea>
+                </div>
+              </div>
+              <div class="field">
+                <label for="" class="label">Notes<br /></label>
+                <div class="control">
+                  <textarea class="input" id="notes" name="notes" style="min-height: 5.5em;"></textarea>
+                </div>
+              </div>
+              <div class="field has-text-centered">
+                <button class="button is-success" style="width:50%;" onclick="addArtist(event)">
+                  Add
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="/js/artists/new.js"></script>
+</body>
+
+</html>

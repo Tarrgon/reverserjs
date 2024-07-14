@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Yiff Today - Reverser</title>
+
+  <%- include("./partials/head", {navData: {active: "Setup"}}); %>
+</head>
+
+<body>
+  <section class="hero is-fullheight">
+    <div class="hero-body">
+      <div class="container">
+        <div class="columns is-centered">
+          <div class="column is-5-tablet is-4-desktop is-3-widescreen">
+            <form class="box">
+              <div class="field">
+                <label for="" class="label">New Password</label>
+                <div class="control has-icons-left">
+                  <input type="password" class="input" id="password" name="password" maxlength="32" required>
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-lock"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="" class="label">Confirm Password</label>
+                <div class="control has-icons-left">
+                  <input type="password" class="input" id="password-confirm" name="password" maxlength="32" required>
+                  <span class="icon is-small is-left">
+                    <i class="fa fa-lock"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="field">
+                <button class="button is-success" onclick="finishSetup(event)">
+                  Set password
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="/js/setup.js"></script>
+</body>
+
+</html>

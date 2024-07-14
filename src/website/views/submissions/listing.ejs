@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Yiff Today - Aggregation</title>
+
+  <%- include("../partials/head", {navData: {active: "Submissions", subactive: "All submissions"}}) %>
+</head>
+
+<body>
+  <%- include("../partials/nav", {navData: {active: "Submissions", subactive: "All submissions"}}) %>
+
+  <%- include("../partials/submissions/listing", {options: {enableSearch: true}}) %>
+  <script src="/js/submissions/fullListing.js"></script>
+</body>
+
+</html>

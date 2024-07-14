@@ -1,0 +1,53 @@
+{
+  "dependencies": {
+    "@atproto/api": "^0.12.22",
+    "@types/express-fileupload": "^1.5.0",
+    "@types/node": "^20.14.2",
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "buffer-image-size": "^0.6.4",
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
+    "deepmerge-json": "^1.5.0",
+    "discord.js": "^14.15.3",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.5.0",
+    "express-session": "^1.18.0",
+    "filesize": "^10.1.2",
+    "form-data-encoder": "^4.0.2",
+    "he": "^1.2.0",
+    "helmet": "^7.1.0",
+    "http-errors": "^2.0.0",
+    "ib-helper": "^1.0.5",
+    "js-md5": "^0.8.3",
+    "jschardet": "^3.1.2",
+    "luxon": "^3.4.4",
+    "mime-types": "^2.1.35",
+    "mjpeg-server": "^0.3.1",
+    "mongodb": "^6.1.0",
+    "nocache": "^4.0.0",
+    "node-html-parser": "^6.1.13",
+    "normalize-url": "^8.0.1",
+    "pixiv-api-client": "^0.27.0",
+    "puppeteer": "^22.11.2",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "sharp": "^0.33.4",
+    "showdown": "^2.1.0",
+    "source-map-support": "^0.5.21"
+  },
+  "scripts": {
+    "start": "node --max-old-space-size=4096 --optimize_for_size ./dist/website/bin/www.js",
+    "build": "npx tsc && npm run copyfiles",
+    "buildprod": "npx tsc && npm run copyfiles && npm run copyclean",
+    "copyfull": "npm run copyfiles && npm run copyclean",
+    "copyclean": "node removeclean.js && npx copyfiles -e \"./dist/config.json\" -e \"./dist/website/iqdb/**\" -e \"./dist/website/data/**\" \"./dist/**\" ./distclean",
+    "copyfiles": "npx copyfiles -u 1 \"./src/**/*.js\" \"./src/**/*.js*\" \"./src/**/*.json\" \"./src/**/*.css\" \"./src/**/*.ejs\" \"./src/**/*.png\" \"./src/**/*.jpg\" \"./src/**/*.svg\" ./dist"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "copyfiles": "^2.4.1",
+    "typescript": "^5.4.5"
+  }
+}

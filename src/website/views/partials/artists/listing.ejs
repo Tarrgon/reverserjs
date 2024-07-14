@@ -1,0 +1,158 @@
+<%- include("./search") %>
+
+<table class="table is-striped is-fullwidth sortable">
+  <thead class="sticky-header">
+    <th class="no-sort"><input type="checkbox" onchange="selectAll(event)" /></th>
+    <th>ID</th>
+    <th>Name</th>
+    <th>URLs</th>
+    <th>Last Scraped</th>
+    <th>Submissions</th>
+    <th>Not Uploaded</th>
+    <th>Bigger dimensions</th>
+    <th>Bigger file size</th>
+    <th class="no-sort">Actions</th>
+  </thead>
+  <tbody id="artist-table-body">
+    <% for (let artist of artists) { %>
+    <% let submissionReferences = artist.submissionReferences.filter(s => !s.isDeleted) %>
+    <tr id="artist-<%- artist.id %>">
+      <td><input data-id="<%- artist.id %>" type="checkbox" onchange="selectArtist(event)" /></td>
+      <th><a href="/artists/<%- artist.id %>"><%- artist.id %></a></th>
+      <td><a href="/artists/<%- artist.id %>"><%- artist.name %></a></td>
+      <td><%- artist.urls.length %></td>
+      <td datetime="<%- artist.lastScrapedAt ? artist.lastScrapedAt.toString() : "Never" %>" data-sort="<%- artist.lastScrapedAt ? artist.lastScrapedAt.getTime().toString() : "0" %>"></td>
+      <td><%- submissionReferences.length %></td>
+      <% let numQueued = submissionReferences.filter(s => s.isQueuedForE621IqdbCheck()).length %>
+      <% 
+        let notUploaded = submissionReferences.filter(s => !s.e621IqdbHits || s.e621IqdbHits.length == 0).length
+        let notUploadedAndHidden = submissionReferences.filter(s => (!s.e621IqdbHits || s.e621IqdbHits.length == 0) && account.ignoredSubmissions.find(ignoredId => ignoredId.equals(s._id))).length
+        
+        let biggerDimensions = submissionReferences.filter(s => (s.betterVersion & 2) == 2).length
+        let biggerSize = submissionReferences.filter(s => (s.betterVersion & 8) == 8).length
+        
+
+        let biggerDimensionsAndHidden = submissionReferences.filter(s => (s.betterVersion & 2) == 2 && account.ignoredSubmissions.find(ignoredId => ignoredId.equals(s._id))).length
+        let biggerSizeAndHidden = submissionReferences.filter(s => (s.betterVersion & 8) == 8 && account.ignoredSubmissions.find(ignoredId => ignoredId.equals(s._id))).length
+      %>
+      <td><%- notUploaded - notUploadedAndHidden %><% if (numQueued > 0) { %> | <span title="Num queued for iqdb check"><%- numQueued %></span> <%}%></td>
+      <td><%- biggerDimensions - biggerDimensionsAndHidden %></td>
+      <td><%- biggerSize - biggerSizeAndHidden %></td>
+      <td>
+        <button class="button is-success is-outlined is-small mr-1" id="queue-<%- artist.id %>" title="Queue scrape" onclick="queueScrape(event, <%- artist.id %>)"><i class="fa-solid fa-rotate has-text-success"></i></button>
+        <% if (account.artistIds.find(a => a.equals(artist._id))) { %>
+        <button class="button is-danger is-outlined is-small mr-1" id="unwatch-<%- artist.id %>" title="Unwatch" onclick="unwatch(event, <%- artist.id %>)"><i class="fa-solid fa-eye-slash has-text-danger"></i></button>
+        <button class="button is-info is-outlined is-small mr-1 hidden" id="watch-<%- artist.id %>" title="Watch" onclick="watch(event, <%- artist.id %>)"><i class="fa-solid fa-eye has-text-info"></i></button>
+        <% } else { %>
+        <button class="button is-danger is-outlined is-small mr-1 hidden" id="unwatch-<%- artist.id %>" title="Unwatch" onclick="unwatch(event, <%- artist.id %>)"><i class="fa-solid fa-eye-slash has-text-danger"></i></button>
+        <button class="button is-info is-outlined is-small mr-1" id="watch-<%- artist.id %>" title="Watch" onclick="watch(event, <%- artist.id %>)"><i class="fa-solid fa-eye has-text-info"></i></button>
+        <% } %>
+        <% if (account.admin) { %>
+        <button class="button is-danger is-outlined is-small mr-1" id="delete-<%- artist.id %>" title="Delete" onclick="deleteArtist(event, <%- artist.id %>)"><i class="fa-solid fa-trash has-text-danger"></i></button>
+        <% } %>
+      </td>
+    </tr>
+    <% } %>
+
+    <% for (let tempArtist of account.tempArtists) { %>
+    <tr>
+      <td></td>
+      <th>?</th>
+      <td><%- tempArtist.name %></td>
+      <td><%- tempArtist.urls.length %></td>
+      <td>Getting identifiers</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td></td>
+    </tr>
+    <% } %>
+    <!-- <thead>
+      <th><input type="checkbox" onchange="selectAll(event)" /></th>
+      <th>ID</th>
+      <th>Name</th>
+      <th>URLs</th>
+      <th>Last Scraped</th>
+      <th>Submissions</th>
+      <th>Not Uploaded</th>
+      <th>Bigger dimensions</th>
+      <th>Bigger file size</th>
+      <th>Actions</th>
+    </thead> -->
+    <tr data-total-ignore>
+      <td></td>
+      <th></th>
+      <td>Totals</td>
+      <td data-total></td>
+      <td>-</td>
+      <td data-total></td>
+      <td data-total></td>
+      <td data-total></td>
+      <td data-total></td>
+      <td></td>
+    </tr>
+  </tbody>
+  <!-- <tfoot>
+    <th><input type="checkbox" onchange="selectAll(event)" /></th>
+    <th>ID</th>
+    <th>Name</th>
+    <th>URLs</th>
+    <th>Last Scraped</th>
+    <th>Submissions</th>
+    <th>Not Uploaded</th>
+    <th>Bigger dimensions</th>
+    <th>Bigger file size</th>
+    <th>Actions</th>
+  </tfoot> -->
+</table>
+
+<%- include("../pagifier", { totalPages }) %>
+
+<script>
+  let formatter = Intl.DateTimeFormat(navigator.languages, {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  })
+
+  for (let element of document.querySelectorAll("[datetime]")) {
+    let value = element.getAttribute("datetime")
+    if (value == "Never") {
+      element.title = "Never scraped"
+      element.innerText = "Never"
+    } else {
+      let date = new Date(value)
+      element.innerText = formatter.format(date)
+      element.title = date.toLocaleString()
+    }
+  }
+
+  for (let td of document.querySelectorAll("[data-total]")) {
+    let tableBody = td.parentElement.parentElement
+    let total = 0
+    for (let row of tableBody.querySelectorAll("tr")) {
+      if (row.hasAttribute("data-total-ignore")) continue
+      total += parseInt(row.children[td.cellIndex].innerText)
+    }
+    td.innerText = total.toString()
+  }
+</script>
+
+<div class="columns">
+  <div class="column">
+    <button onclick="queueSelected(event)" class="button is-success">Queue Selected</button>
+    <% if (active == "Listing") { %>
+    <button onclick="watchSelected(event)" class="button is-info">Watch Selected</button>
+    <% } %>
+    <button onclick="unwatchSelected(event)" class="button is-danger">Unwatch Selected</button>
+  </div>
+</div>
+<div class="columns">
+  <div class="column">
+    <button onclick="importArtists(event)" class="button is-success">Import Artists</button>
+    <button onclick="exportArtists(event)" class="button is-info">Export Selected</button>
+  </div>
+</div>
+<!-- <link href="https://cdn.jsdelivr.net/gh/tofsjonas/sortable@latest/sortable.min.css" rel="stylesheet" /> -->
+<!-- <script src="https://cdn.jsdelivr.net/gh/tofsjonas/sortable@latest/sortable.min.js"></script> -->

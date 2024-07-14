@@ -1,0 +1,151 @@
+import Aggregator from "../../interfaces/Aggregator"
+import Globals from "../Globals"
+import Submission from "../Submission"
+import Utils from "../Utils"
+import SourceData from "../../interfaces/SourceData"
+import ImageData from "../../interfaces/ImageData"
+import { ObjectId, WithId, Document } from "mongodb"
+import AggregationManager, { AggregationJobData } from "../AggregationManager"
+import ArtistURL from "../ArtistURL"
+import ImageDownloader from "../ImageDownloader"
+import DeviantArtScraper from "../customScrapers/DeviantArtScraper"
+import Job from "../Job"
+
+export type DeviantArtJobData = AggregationJobData & { startingOffset: number }
+
+class DeviantArtAggregator implements Aggregator {
+  index: number = 4
+  manager: AggregationManager
+
+  host: string = "deviantart"
+  displayName: string = "DeviantArt"
+  homepage: string = "https://www.deviantart.com"
+
+  galleryTemplates: RegExp[] = [
+    `deviantart\\.com\\/${Globals.siteArtistIdentifier}`,
+    `${Globals.siteArtistIdentifier}\\.deviantart\\.com`
+  ].map(r => new RegExp(`${Globals.prefix}${r}\\/?${Globals.remaining}\\??${Globals.remaining}#?${Globals.remaining}`))
+
+  usernameIdentifierRegex: RegExp = /[a-zA-Z0-9]{1,22}/
+
+  submissionTemplate: string = "https://www.deviantart.com/{siteArtistIdentifier}/art/{siteSubmissionIdentifier}"
+
+  ready: boolean = false
+  inUse: boolean = false
+  canFetch: boolean = false
+  canSearch: boolean = true
+
+  constructor(manager: AggregationManager) {
+    this.manager = manager
+  }
+
+  async createJobData(artistUrl: ArtistURL): Promise<DeviantArtJobData> {
+    return { artistUrlId: artistUrl._id, startingOffset: 0 }
+  }
+
+  private async _internalProcess(artistUrl: ArtistURL, latestDate: Date, job: Job<DeviantArtJobData>): Promise<boolean> {
+    console.log(`Fetching: ${artistUrl.url} | Going back to ${latestDate}`)
+
+    let promises: Promise<any>[] = []
+
+    let paused = false
+
+    try {
+      for await (let media of DeviantArtScraper.getMedia(artistUrl, job)) {
+        if (promises.length >= 100) {
+          await Promise.all(promises)
+          promises.length = 0
+        }
+
+        if (media.createdAt < latestDate) {
+          break
+        }
+
+        if (media.mediaUrls.length <= 0) {
+          continue
+        }
+
+        for (let i = 0; i < media.mediaUrls.length; i++) {
+          while (paused) await Utils.wait(1000)
+          let url = media.mediaUrls[i]
+          let p = ImageDownloader.queueDownload(url)
+
+          p.then(async id => {
+            if (id) {
+              let imageData = { ...id, source: this.submissionTemplate.replace("{siteArtistIdentifier}", artistUrl.urlIdentifier).replace("{siteSubmissionIdentifier}", media.id), offsiteId: `${media.id}_${i}` }
+              let prom = Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, media.title, media.description, media.createdAt, imageData.width, imageData.height, imageData.fileSize, media.isDownloadable ? `/utils/get_deviantart_download/${media.deviationId}` : url, imageData.extension)
+              promises.push(prom)
+            } else {
+              console.error("NO IMAGE DATA")
+            }
+          }).catch(async (e) => {
+            if (e.message == "token validation failed") {
+              console.error("TOKEN VALIDATION FAILED. REGENERATING!")
+              paused = true
+              await DeviantArtScraper.forceNewToken()
+              paused = false
+              return
+            }
+
+            console.error(`Error while downloading: ${url}`)
+            console.error(e)
+          })
+
+          promises.push(p)
+        }
+      }
+
+      await Promise.all(promises)
+
+      console.log(`Completed: ${artistUrl.url}`)
+
+      return false
+    } catch (e: any) {
+      console.error(`Error with: ${this.host}/${artistUrl.urlIdentifier} (${artistUrl._id})`)
+      console.error(e)
+      console.error(JSON.stringify(e, null, 4))
+      return true
+    }
+  }
+
+  async fetchAll(artistUrlId: ObjectId, job: Job<DeviantArtJobData>): Promise<boolean> {
+    if (!this.canFetch) return false
+
+    this.inUse = true
+
+    let artistURL = await ArtistURL.findByObjectId(artistUrlId) as ArtistURL
+
+    let error = await this._internalProcess(artistURL, artistURL.lastScrapedAt ?? new Date(0), job)
+
+    if (error) {
+      throw new Error("Error")
+    }
+
+    this.inUse = false
+
+    return true
+  }
+
+  testUrl(url: string): boolean {
+    for (let regex of this.galleryTemplates) {
+      if (regex.test(url)) return true
+    }
+
+    return false
+  }
+
+  matchUrl(url: string): RegExpExecArray | null {
+    for (let regex of this.galleryTemplates) {
+      let match = regex.exec(url)
+      if (match) return match
+    }
+
+    return null
+  }
+
+  async getApiIdentifier(urlIdentifier: string): Promise<string | null> {
+    return await DeviantArtScraper.getApiIdentifier(urlIdentifier)
+  }
+}
+
+export default DeviantArtAggregator

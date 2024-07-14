@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Yiff Today - Aggregation</title>
+
+  <%- include("../partials/head", {navData: {active: "Artists"}}); %>
+</head>
+
+<body>
+  <%- include("../partials/nav", {navData: {active: "Artists", subactive: "Listing"}}); %>
+
+  <section class="hero">
+    <div class="hero-body">
+      <%- include("../partials/artists/listing.ejs", {artists: artists, active: "Listing", totalPages: totalPages}) %>
+    </div>
+  </section>
+  <%- include("../partials/artists/actions", {active: "Listing"}) %>
+</body>
+
+</html>

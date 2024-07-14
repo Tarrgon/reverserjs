@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Yiff Today - Aggregation</title>
+
+  <%- include("../partials/head", {navData: {active: "Home"}}); %>
+</head>
+
+<body>
+  <%- include("../partials/nav", {navData: {active: "Home"}}); %>
+
+  <section class="hero">
+    <div class="hero-body">
+      <h1 class="title">Settings</h1>
+      <div id="settings-container" class="mt-3 mb-6 mx-6">
+        <div class="columns is-vcentered">
+          <div class="column is-1">
+            <label class="label">Description template<br /><span class="has-text-grey is-size-7">placeholders:<br />{title}<br />{description}</span></label>
+          </div>
+          <div class="column is-2">
+            <div class="control">
+              <textarea class="input" name="descriptionTemplate" style="min-height: 5.5rem;"><%- account.settings?.descriptionTemplate ?? "{title}\n\n{description}"%></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="columns is-vcentered">
+          <div class="column is-1">
+            <label class="label has-text-right">Auto add date tag</label>
+          </div>
+          <div class="column is-2">
+            <div class="select">
+              <select name="autoAddDateTag" data-type="boolean">
+                <option value="true" <%- account.settings?.autoAddDateTag ? " selected" : "" %>>Yes</option>
+                <option value="false" <%- !account.settings?.autoAddDateTag ? " selected" : "" %>>No</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="columns is-vcentered">
+          <div class="column is-1">
+            <label class="label has-text-right">Source similarity cutoff</label>
+          </div>
+          <div class="column is-2">
+            <div class="field">
+              <p class="control">
+                <input name="sourceSimilarityCutoff" class="input" type="number" value="<%-account.settings?.sourceSimilarityCutoff ?? '85'%>">
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="columns is-vcentered">
+          <div class="column is-1">
+            <label class="label has-text-right">Show exact submission created date</label>
+          </div>
+          <div class="column is-2">
+            <div class="select">
+              <select name="useSubmissionDateSyntax" data-type="boolean">
+                <option value="true" <%- account.settings?.useSubmissionDateSyntax ? " selected" : "" %>>Yes</option>
+                <option value="false" <%- !account.settings?.useSubmissionDateSyntax ? " selected" : "" %>>No</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="columns is-vcentered">
+          <div class="column is-1">
+            <label class="label has-text-right">Discord ID</label>
+          </div>
+          <div class="column is-2">
+            <div class="field">
+              <p class="control">
+                <input name="discordId" class="input" type="text" value="<%-account.settings?.discordId ?? ''%>">
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <button class="button is-success" onclick="submitSettings()">Submit</button>
+      </div>
+    </div>
+  </section>
+  <script src="/js/settings.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,68 @@
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="/">
+      <img src="/img/yt_icon.png" />
+    </a>
+
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="main-navbar">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="main-navbar" class="navbar-menu">
+    <div class="navbar-start">
+      <a class="navbar-item<% if (navData.active == "Home") { %> is-active<% } %>" href="/">
+        Home
+      </a>
+
+      <a class="navbar-item<% if (navData.active == "Backlog") { %> is-active<% } %>" href="/backlog">
+        Backlog
+      </a>
+
+      <a class="navbar-item<% if (navData.active == "Search") { %> is-active<% } %>" href="/search">
+        Search
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable" <% if (navData.active == "Artists") { %> style="--bulma-navbar-dropdown-arrow: var(--background-color);" <% } %>>
+        <a class="navbar-link<% if (navData.active == "Artists") { %> is-active<% } %>" href="/artists">
+          Artists
+        </a>
+
+        <div class="navbar-dropdown">
+          <a class="navbar-item<% if (navData.subactive == "Watched") { %> is-active<% } %>" href="/artists">
+            Watched
+          </a>
+
+          <a class="navbar-item<% if (navData.subactive == "Listing") { %> is-active<% } %>" href="/artists/listing">
+            Public Listing
+          </a>
+
+          <a class="navbar-item<% if (navData.subactive == "New") { %> is-active<% } %>" href="/artists/new">
+            New
+          </a>
+        </div>
+      </div>
+
+      <div class="navbar-item has-dropdown is-hoverable" <% if (navData.active == "Submissions") { %> style="--bulma-navbar-dropdown-arrow: var(--background-color);" <% } %>>
+        <a class="navbar-link<% if (navData.active == "Submissions") { %> is-active<% } %>" href="/submissions">
+          Submissions
+        </a>
+
+        <div class="navbar-dropdown">
+          <a class="navbar-item<% if (navData.subactive == "Watched submissions") { %> is-active<% } %>" href="/submissions">
+            Watched
+          </a>
+
+          <a class="navbar-item<% if (navData.subactive == "All submissions") { %> is-active<% } %>" href="/submissions/all">
+            All submissions
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script src="/js/nav.js"></script>

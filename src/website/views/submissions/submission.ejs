@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Yiff Today - Aggregation</title>
+
+  <%- include("../partials/head", {navData: {active: "Submissions"}}); %>
+</head>
+
+<body>
+  <%- include("../partials/nav", {navData: {active: "Submissions"}}); %>
+
+  <div class="mx-6">
+    <h1 class="is-size-1 has-text-light">Submission from <a href="/artists/<%- submission.artistReference.id %>" class="has-text-info"><%- submission.artistReference.name %></a></h1>
+    <br />
+    <div id="submissions-container" class="columns m-3">
+      <div id="submission-<%-submission.id%>" data-submission-id="<%-submission.id%>" class="submission column is-2">
+        <%- include("../partials/submissions/submission", {includeScore: false}) %>
+      </div>
+      <div class="column">
+        <% if (submission.title) { %>
+        <h4 class="is-size-4 has-text-light"><%- submission.title.trim() %></h4>
+        <% } %>
+        <% for (let desc of submission.description.trim().split("\n")) { %>
+        <p class="is-size-5 has-text-grey-light"><%- desc %></p> <br />
+        <% } %>
+      </div>
+    </div>
+    <br />
+    <h2 class="is-size-2 has-text-light">Similar</h2>
+    <%- include("../partials/submissions/listing", {options: {enableSearch: false, includeScore: true, my: "", centered: false, includePages: false, primarySubmission: submission}, submissions: similar}) %>
+  </div>
+
+</body>
+
+</html>

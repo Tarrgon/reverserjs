@@ -1,0 +1,33 @@
+<div id="search-container" class="mt-3 mb-6 mx-6 hidden">
+  <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">Name includes</label>
+    </div>
+    <div class="column is-2">
+      <input name="nameIncludes" class="input" type="text">
+    </div>
+  </div>
+
+  <div class="columns is-vcentered">
+    <div class="column is-1">
+      <label class="label has-text-right">Order</label>
+    </div>
+    <div class="column">
+      <div class="select">
+        <select name="order">
+          <option value="newestFirst" selected>Newest first</option>
+          <option value="oldestFirst">Oldest first</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="columns is-vcentered">
+    <button class="button is-info" onclick="search()">Search</button>
+  </div>
+</div>
+
+<button id="open-search-options" onclick="openSearchOptions()" class="button is-warning ml-3">Open search options</button>
+<button id="close-search-options" onclick="closeSearchOptions()" class="button is-warning hidden ml-3">Close search options</button>
+
+<script src="/js/artists/search.js"></script>

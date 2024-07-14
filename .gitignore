@@ -1,0 +1,10 @@
+dist/
+
+distclean/
+
+node_modules/
+
+prodconfig.json
+
+# Just small test things these aren't unit tests or anything
+test*.* 

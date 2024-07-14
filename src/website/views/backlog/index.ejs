@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Yiff Today - Aggregation</title>
+
+  <%- include("../partials/head", {navData: {active: "Backlog"}}); %>
+</head>
+
+<body>
+  <%- include("../partials/nav", {navData: {active: "Backlog"}}); %>
+
+  <%- include("../partials/submissions/listing", {options: {enableSearch: true}}) %>
+  <script src="/js/backlog/listing.js"></script>
+</body>
+
+</html>

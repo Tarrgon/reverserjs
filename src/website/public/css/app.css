@@ -1,0 +1,56 @@
+@import url("https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css");
+@import url("/css/icons.css");
+
+:root {
+  --background-color: #14161A;
+}
+
+html, body {
+  height: 100vh;
+}
+
+body {
+  width: 100%;
+  background-color: var(--background-color);
+  overflow-x: hidden;
+  font-family: "Open Sans", "Lucida Grande", Tahoma, sans-serif;
+}
+
+html {
+  overflow: hidden;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.is-selected {
+  border: 2px solid #0f0;
+}
+
+.is-negated {
+  border: 2px solid #f00;
+}
+
+.overlay {
+  position: absolute;
+  z-index: 999;
+  top: 0;
+  left: 0;
+}
+
+.black-transparent-background {
+  background-color: rgba(0, 0, 0, 0.253);
+}
+
+.sticky-header>*>th {
+  background-color: var(--background-color);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.submission-action {
+  width: 36px;
+  height: 24px;
+}

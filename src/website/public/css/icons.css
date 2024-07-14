@@ -1,0 +1,27 @@
+.submission {
+  --icon-size: 1.5rem;
+}
+
+.artist-link {
+  --icon-size: 1.5rem;
+}
+
+.site-icon-wrapper {
+  --_icon-size: var(--icon-size, 1rem);
+  font-size: var(--_icon-size);
+  white-space: nowrap;
+}
+
+.site-icon-wrapper .site-icon {
+  vertical-align: middle;
+}
+
+.site-icon-wrapper .site-icon::before {
+  content: "";
+  width: var(--_icon-size);
+  height: var(--_icon-size);
+  display: inline-block;
+  background: url("/img/icons.png");
+  background-size: var(--_icon-size);
+  background-position: 0 calc(var(--icon-index) * var(--_icon-size) * -1);
+}

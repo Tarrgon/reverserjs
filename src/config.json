@@ -1,0 +1,174 @@
+{
+  "mongo": {
+    "url": "mongodb://0.0.0.0:27017",
+    "databaseName": "reverser"
+  },
+  "sessions": {
+    "databaseName": "reverserSessions",
+    "secret": "CHANGETHISTOSOMERANDOMSTUFF"
+  },
+  "web": {
+    "port": 9292
+  },
+  "iqdb": {
+    "dataDirectory": "iqdb",
+    "port": 5588
+  },
+  "e621Auth": "Basic ",
+  "multiIPFetchOptions": [
+    {
+      "hostName": "api.twitter.com",
+      "aliases": [
+        "x.com",
+        "twitter.com"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
+    },
+    {
+      "hostName": "www.furaffinity.net",
+      "aliases": [
+        "sfw.furaffinity.net",
+        "furaffinity.net"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
+    },
+    {
+      "hostName": "inkbunny.net",
+      "aliases": [
+        "www.inkbunny.net"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
+    },
+    {
+      "hostName": "www.deviantart.com",
+      "aliases": [
+        "deviantart.com"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
+    },
+    {
+      "hostName": "www.newgrounds.com",
+      "aliases": [
+        "newgrounds.com",
+        "/.*\\.newgrounds\\.com"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
+    },
+    {
+      "hostName": "mastodon.social",
+      "aliases": [
+        "www.mastodon.social"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ],
+      "useRateLimit": true,
+      "rateLimitOptions": {
+        "rateLimitRemainingHeader": "x-ratelimit-remaining",
+        "rateLimitResetHeader": "x-ratelimit-reset"
+      }
+    },
+    {
+      "hostName": "baraag.net",
+      "aliases": [
+        "www.baraag.net"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ],
+      "useRateLimit": true,
+      "rateLimitOptions": {
+        "rateLimitRemainingHeader": "x-ratelimit-remaining",
+        "rateLimitResetHeader": "x-ratelimit-reset"
+      }
+    },
+    {
+      "hostName": "derpibooru.org",
+      "aliases": [
+        "www.derpibooru.org"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
+    },
+    {
+      "hostName": "cohost.org",
+      "aliases": [
+        "www.cohost.org"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
+    },
+    {
+      "hostName": "www.weasyl.com",
+      "aliases": [
+        "weasyl.com"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
+    },
+    {
+      "hostName": "furrynetwork.com",
+      "aliases": [
+        "www.furrynetwork.com"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
+    }
+  ],
+  "imageDownloadIps": ["0.0.0.0"],
+  "e621IqdbRotation": ["0.0.0.0"],
+  "twitterAuth": {
+    "username": "",
+    "password": "",
+    "email": ""
+  },
+  "furAffinityAuth": {
+    "username": "",
+    "password": ""
+  },
+  "inkBunnyAuth": {
+    "username": "",
+    "password": ""
+  },
+  "deviantArtAuth": {
+    "username": "",
+    "password": "",
+    "clientId": "",
+    "clientSecret": ""
+  },
+  "pixivRefreshToken": "",
+  "blueSkyAuth": {
+    "username": "", 
+    "password": ""
+  },
+  "newgroundsAuth": {
+    "username": "",
+    "password": ""
+  },
+  "cohostCookie": "",
+  "weasylApiKey": "",
+  "internal": {
+    "ssl": {
+      "privateKeyLocation": "",
+      "certificateLocation": "",
+      "chainLocation": ""
+    }
+  },
+  "discordBotToken": "",
+  "dataDirectory": "data",
+  "secure": false
+}

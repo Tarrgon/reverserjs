@@ -1,0 +1,128 @@
+<div id="submission-card-<%-submission.id%>" class="card" style="border-radius: 0; border-radius: var(--bulma-card-radius) var(--bulma-card-radius) 0 0;">
+  <a href="/submissions/<%-submission.id%>">
+    <div class="card-image">
+      <figure class="image" onclick="preview(event, '<%- submission.extension %>', '<%- submission.getWebPath() %>')">
+        <img src="<%- submission.getThumbnailWebPath() %>" style="border-end-end-radius: 0; border-end-start-radius: 0;" />
+      </figure>
+    </div>
+  </a>
+  <footer class="card-footer" style="min-height: 2em; display: unset;">
+    <% if (includeScore) {%>
+    <div class="has-text-centered" style="margin-right: auto; margin-left: auto;">
+      <span>Similarity: <%- (Math.ceil(submission.hit.score*20 - 0.5)/20).toFixed(2) %></span>
+      <br />
+      <% if (options.primarySubmission.md5 == submission.md5) { %>
+      <span class="has-text-light is-size-7">MD5 Match</span>
+      <br />
+      <% } %>
+    </div>
+    <% } %>
+    <div class="columns ml-1 mr-1 is-multiline is-mobile" style="margin-top: .1rem">
+      <div class="column is-8-widescreen is-full-desktop">
+        <span class="site-icon-wrapper">
+          <a title="<%- submission.aggregator?.displayName %> - <%- submission.artistUrlReference.urlIdentifier %>" href="<%- submission.artistUrlReference.url %>">
+            <span class="site-icon" style="--icon-index: <%- submission.aggregator?.index %>"></span>
+          </a>
+        </span>
+        <span><a href="/artists/<%- submission.artistReference.id %>"><%- submission.artistReference.name %></a></span>
+        <br />
+        <span><%- submission.width %>x<%- submission.height %> </span>
+        <br />
+        <span><%- submission.getHumanFileSize() %>, </span>
+        <span><%- submission.extension.toUpperCase() %></span>
+        <br />
+        <% if (!account.settings?.useSubmissionDateSyntax) { %>
+        <span data-datetime-title="<%- submission.creationDate.toString() %>"><%- submission.dateTime.toRelative() %></span>
+        <% } else { %>
+        <span title="<%-submission.dateTime.toRelative()%>" data-datetime="<%- submission.creationDate.toString() %>"></span>
+        <% } %>
+      </div>
+      <div class="column is-3-widescreen is-offset-1-widescreen is-full-desktop">
+        <button id="update-iqdb-<%- submission.id %>" class="submission-action button is-small mb-1" title="Update E6 Post Data" onclick="updateSubmissionE621Iqdb(event, <%- submission.id %>)">
+          <i class="fa-solid fa-rotate has-text-success"></i>
+        </button>
+        <button id="waiting-iqdb-<%- submission.id %>" class="submission-action button is-small hidden mb-1" title="Updating">
+          <i class="fa-solid fa-spinner fa-spin has-text-warning"></i>
+        </button>
+        <% if (!account.ignoredSubmissions.find(s => s.equals(submission._id))) { %>
+        <button id="hide-<%- submission.id %>" class="submission-action button is-small mb-1" title="Hide" onclick="hideSubmission(event, <%- submission.id %>)">
+          <i class="fa-solid fa-eye-slash has-text-warning"></i>
+        </button>
+        <button id="unhide-<%- submission.id %>" class="submission-action button is-small hidden mb-1" title="Unhide" onclick="unhideSubmission(event, <%- submission.id %>)">
+          <i class="fa-solid fa-eye has-text-success"></i>
+        </button>
+        <% } else { %>
+        <button id="hide-<%- submission.id %>" class="submission-action button is-small hidden mb-1" title="Hide" onclick="hideSubmission(event, <%- submission.id %>)">
+          <i class="fa-solid fa-eye-slash has-text-danger"></i>
+        </button>
+        <button id="unhide-<%- submission.id %>" class="submission-action button is-small mb-1" title="Unhide" onclick="unhideSubmission(event, <%- submission.id %>)">
+          <i class="fa-solid fa-eye has-text-success"></i>
+        </button>
+        <% } %>
+
+        <% if (!submission.isDeleted) { %>
+        <button id="delete-<%- submission.id %>" class="submission-action button is-small mb-1" title="Delete" onclick="deleteSubmission(event, <%- submission.id %>)">
+          <i class="fa-solid fa-trash has-text-danger"></i>
+        </button>
+        <button id="undelete-<%- submission.id %>" class="submission-action button is-small mb-1 hidden" title="Undelete" onclick="undeleteSubmission(event, <%- submission.id %>)">
+          <i class="fa-solid fa-trash-can-arrow-up has-text-success"></i>
+        </button>
+        <% } else { %>
+        <button id="delete-<%- submission.id %>" class="submission-action button is-small mb-1 hidden" title="Delete" onclick="deleteSubmission(event, <%- submission.id %>)">
+          <i class="fa-solid fa-trash has-text-danger"></i>
+        </button>
+        <button id="undelete-<%- submission.id %>" class="submission-action button is-small mb-1" title="Undelete" onclick="undeleteSubmission(event, <%- submission.id %>)">
+          <i class="fa-solid fa-trash-can-arrow-up has-text-success"></i>
+        </button>
+        <% } %>
+
+        <% if (!account.submissionsBacklog.find(s => s.equals(submission._id))) { %>
+        <button id="add-to-backlog-<%- submission.id %>" class="submission-action button is-small mb-1" title="Add to backlog" onclick="addSubmissionToBacklog(event, <%- submission.id %>)">
+          <i class="fa-solid fa-plus has-text-info"></i>
+        </button>
+        <button id="remove-from-backlog-<%- submission.id %>" class="submission-action button is-small hidden mb-1" title="Remove from backlog" onclick="removeSubmissionFromBacklog(event, <%- submission.id %>)">
+          <i class="fa-solid fa-minus has-text-danger"></i>
+        </button>
+        <% } else { %>
+        <button id="add-to-backlog-<%- submission.id %>" class="submission-action button is-small hidden mb-1" title="Add to backlog" onclick="addSubmissionToBacklog(event, <%- submission.id %>)">
+          <i class="fa-solid fa-plus has-text-info"></i>
+        </button>
+        <button id="remove-from-backlog-<%- submission.id %>" class="submission-action button is-small mb-1" title="Remove from backlog" onclick="removeSubmissionFromBacklog(event, <%- submission.id %>)">
+          <i class="fa-solid fa-minus has-text-danger"></i>
+        </button>
+        <% } %>
+      </div>
+    </div>
+    <div class="has-text-centered pb-2" style="margin-right: auto; margin-left: auto;">
+      <a class="button is-link is-outlined is-small is-size-7 has-text-link" href="<%- submission.sourceUrl %>" target="_blank" title="Post source">SRC</a>
+      <a class="button is-link is-outlined is-small is-size-7 has-text-link" rel="noreferrer" href="<%- submission.directLinkOffsite %>" target="_blank" title="Direct link external">DLE</a>
+      <a class="button is-link is-outlined is-small is-size-7 has-text-link" href="<%- submission.getWebPath() %>" target="_blank" title="Direct link on-site">DLO</a>
+      <a class="button is-link is-outlined is-small is-size-7 has-text-link" href=<%- submission.directLinkOffsite.startsWith("/") ? (submission.directLinkOffsite + "?redirect=https%3A%2F%2Fe621.net%2Fiqdb_queries%3Furl%3D%7Bvalue%7D") : `https://e621.net/iqdb_queries?url=${encodeURIComponent(submission.directLinkOffsite)}` %> target="_blank" title="E621 IQDB">RVS</a>
+      <br />
+      <% if (submission.isUploadable()) { %>
+      <a class="button is-success mt-4 mb-2" href="/submissions/<%-submission.id%>/upload-url" target="_blank">Upload</a>
+      <% } %>
+      <div id="hit-holder-<%- submission.id %>">
+        <% let index; if ((index = submission.e621IqdbCheckIndex()) != -1) { %>
+        <span class="has-text-info is-size-7">E621 check queued. Position: #<%-index%></span>
+        <% } else if (submission.isCheckingE621Iqdb() ) { %>
+        <span class="has-text-info is-size-7">Checking E621 now.</span>
+        <% } %>
+        <% for (let hit of submission.e621IqdbHits) { %>
+        <span>
+          <span class="has-text-info is-size-7"><a href="<%- hit.sourceUrl %>" target="_blank">#<%- hit.id %></a></span>
+          <span class="is-size-7"><%- hit.width %>x<%- hit.height %>, <%- humanSize(hit.fileSize, { round: 0 }) %>, <%- hit.fileType?.toUpperCase() ?? "<span class=\"has-text-danger\">DEL</span>" %></span>
+          <span class="has-text-info is-size-7"><a href="<%- hit.directLink %>" target="_blank">E6D</a></span>
+          <% if (hit.md5 == submission.md5) { %>
+          <span class="has-text-light is-size-7">Exact</span>
+          <% } else { %>
+          <span class="has-text-info is-size-7"><a href="https://e621.net/post_replacements/new?post_id=<%- hit.id %>" target="_blank">REP</a></span>
+          <% } %>
+          <i class="fa-solid fa-trash has-text-danger is-size-7" title="Delete hit" style="cursor: pointer;" onclick="deleteIqdbHit(event, <%- submission.id %>, <%- hit.id %>)"></i>
+          <br />
+        </span>
+        <% } %>
+      </div>
+    </div>
+  </footer>
+</div>
