@@ -288,6 +288,8 @@ class DeviantArtScraper {
   }
 
   static async getDownloadLink(id: string, priority: number = 500): Promise<string> {
+    return ""
+
     let json = await new Promise((resolve, reject) => {
       DeviantArtScraper.queueRequest(`deviation/download/${id}`, {}, priority, resolve, reject)
     }) as any
@@ -296,6 +298,8 @@ class DeviantArtScraper {
   }
 
   static async getApiIdentifier(urlIdentifier: string): Promise<string | null> {
+    return null
+
     try {
       let json = await new Promise((resolve, reject) => {
         DeviantArtScraper.queueRequest(`user/profile/${urlIdentifier}`, {}, 1000, resolve, reject)
@@ -311,6 +315,8 @@ class DeviantArtScraper {
   }
 
   static async* getMedia(artistUrl: ArtistURL, job: Job<DeviantArtJobData>): AsyncGenerator<Deviation, void> {
+    return
+    
     let offset = job.jobData.startingOffset
 
     let params = {
