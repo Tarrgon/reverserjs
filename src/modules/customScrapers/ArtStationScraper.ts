@@ -74,11 +74,11 @@ class ArtStationScraper {
         let assets = details.assets.filter(a => ALLOWED_ASSET_TYPES.includes(a.asset_type))
 
         let createdAt = new Date(details.updated_at)
-        let primaryTitle = DTextUtils.nodeToPlainText(Utils.getHtmlElement(details.title))
+        let primaryTitle = Utils.getHtmlElement(details.title)?.innerText ?? ""
         let primaryDescription = DTextUtils.htmlToDText(Utils.getHtmlElement(details.title))
 
         for (let asset of assets) {
-          let assetTitle = asset.title ? DTextUtils.nodeToPlainText(Utils.getHtmlElement(asset.title)) : null
+          let assetTitle = asset.title ? Utils.getHtmlElement(asset.title)?.innerText : null
           yield new Media(id.toString(), assetTitle ? assetTitle : primaryTitle, primaryDescription, [asset.image_url], createdAt)
         }
       }

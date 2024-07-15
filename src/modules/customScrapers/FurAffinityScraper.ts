@@ -26,7 +26,7 @@ export class FurAffinityMedia extends Media {
   constructor(id: string, document: HTMLElement) {
     let url: string = document.querySelector(".download a")?.getAttribute("href") as string
     if (url.startsWith("//")) url = url.replace(/^\/\//, "https://")
-    super(id, DTextUtils.nodeToPlainText(document.querySelector(".submission-title")),
+    super(id, document.querySelector(".submission-title")?.innerText ?? "",
       DTextUtils.htmlToDText(document.querySelector(".submission-description")), [url],
       FurAffinityMedia.parseTime(document))
   }

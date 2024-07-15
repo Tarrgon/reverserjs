@@ -232,7 +232,7 @@ class NewgroundsScraper {
         urls.push(element.getAttribute("data-smartload-src") as string)
       }
 
-      return new Media(url.slice(url.lastIndexOf("/") + 1), DTextUtils.nodeToPlainText(mediaObject.querySelector("[itemprop='name']")), DTextUtils.htmlToDText(mediaObject.querySelector("#author_comments")), urls, new Date(mediaObject.querySelector("[itemprop='datePublished']")?.getAttribute("content") as string))
+      return new Media(url.slice(url.lastIndexOf("/") + 1), mediaObject.querySelector("[itemprop='name']")?.innerText ?? "", DTextUtils.htmlToDText(mediaObject.querySelector("#author_comments")), urls, new Date(mediaObject.querySelector("[itemprop='datePublished']")?.getAttribute("content") as string))
     } catch (e) {
       console.error(`ERROR GETTING NEWGROUNDS SUBMISSION: ${url}`)
       console.error(e)
