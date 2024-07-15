@@ -303,6 +303,7 @@ class E621IqdbChecker {
           try {
             imageBuffer = await E621IqdbChecker.convertToProperSize(buffer)
           } catch (e) {
+            console.error(`ERROR CONVERTING TO PROPER SIZE FOR IQDB WITH: ${submission._id}`)
             console.error(e)
             continue
           }
