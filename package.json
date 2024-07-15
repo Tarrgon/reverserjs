@@ -41,7 +41,7 @@
   "scripts": {
     "start": "node --max-old-space-size=4096 --optimize_for_size ./dist/website/bin/www.js",
     "build": "npx tsc && npm run copyfiles",
-    "buildprod": "npx tsc && npm run copyfiles && npm run copyclean",
+    "buildprod": "npm run linterfix && npx tsc && npm run copyfiles && npm run copyclean",
     "copyfull": "npm run copyfiles && npm run copyclean",
     "copyclean": "node removeclean.js && npx copyfiles -e \"./dist/config.json\" -e \"./dist/website/iqdb/**\" -e \"./dist/website/data/**\" \"./dist/**\" ./distclean",
     "copyfiles": "npx copyfiles -u 1 \"./src/**/*.js\" \"./src/**/*.js*\" \"./src/**/*.json\" \"./src/**/*.css\" \"./src/**/*.ejs\" \"./src/**/*.png\" \"./src/**/*.jpg\" \"./src/**/*.svg\" ./dist",

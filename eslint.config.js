@@ -5,9 +5,11 @@ const globals = require("globals")
 const tseslint = require("typescript-eslint")
 const stylistic = require("@stylistic/eslint-plugin")
 
+const ignores = ["dist/**/*", "distclean/**/*", "**test**", "**/public/**/*", "node_modules/**/*"]
+
 module.exports = tseslint.config(
   {
-    ignores: ["dist/**/*", "distclean/**/*", "**test**", "**/public/**/*", "node_modules/**/*"],
+    ignores,
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended
@@ -17,7 +19,7 @@ module.exports = tseslint.config(
     plugins: {
       "@stylistic": stylistic
     },
-    ignores: ["dist/**/*", "distclean/**/*", "**test**", "**/public/**/*", "node_modules/**/*"],
+    ignores,
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -55,7 +57,7 @@ module.exports = tseslint.config(
     }
   },
   {
-    ignores: ["dist/**/*", "distclean/**/*", "**test**", "**/public/**/*", "node_modules/**/*"],
+    ignores,
     files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
     rules: {
       "@typescript-eslint/no-unused-vars": "off",
