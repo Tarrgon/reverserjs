@@ -49,7 +49,7 @@ class Artist {
 
     doc.submissionReferences = await this.getSubmissions()
     doc.urlReferences = await this.getArtistUrls()
-    let lastScrapedAt = [...doc.urlReferences].filter(u => u.lastScrapedAt && u.lastScrapedAt.getFullYear() > 2020).sort((a, b) => (a.lastScrapedAt?.getTime() ?? Number.MAX_SAFE_INTEGER) - (b.lastScrapedAt?.getTime() ?? Number.MAX_SAFE_INTEGER))[0]?.lastScrapedAt
+    let lastScrapedAt = [...doc.urlReferences].filter(u => u.lastScrapedAt && u.lastScrapedAt.getFullYear() > 2020 && u.getAggregator?.()?.canFetch).sort((a, b) => (a.lastScrapedAt?.getTime() ?? Number.MAX_SAFE_INTEGER) - (b.lastScrapedAt?.getTime() ?? Number.MAX_SAFE_INTEGER))[0]?.lastScrapedAt
     doc.lastScrapedAt = !lastScrapedAt || doc.submissionReferences?.length == 0 ? null : lastScrapedAt?.getTime() == Number.MAX_SAFE_INTEGER ? null : lastScrapedAt
 
     let noters: Map<ObjectId, string> = new Map()
