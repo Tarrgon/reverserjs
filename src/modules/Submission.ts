@@ -234,7 +234,7 @@ class Submission {
     let description = forAccount?.settings?.descriptionTemplate ?? "{title}\n\n{description}"
 
     if (this.title) description = description.replaceAll("{title}", he.decode(this.title))
-    else description = description.replaceAll("{title}", "")
+    else description = description.split("{title}").slice(1).join()
 
     if (this.description) description = description.replaceAll("{description}", he.decode(this.description))
     else description = description.replaceAll("{description}", "")
