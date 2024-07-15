@@ -7,7 +7,7 @@ process.on("message", (message) => {
   }
 })
 
-module.exports = (client) => ({
+module.exports = client => ({
   requestResponse: (data) => {
     return new Promise((resolve) => {
       let id

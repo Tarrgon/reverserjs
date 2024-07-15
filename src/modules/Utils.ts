@@ -371,8 +371,7 @@ class Utils {
       if (fs.existsSync(tempPath)) {
         let buffer = fs.readFileSync(tempPath)
         resolve(new Blob([buffer], { type: "video/mp4" }))
-      }
-      else {
+      } else {
         console.error(`Error downloading m3u8 for ${url} (1)`)
         console.error(ffmpeg.stderr.toString())
         resolve(null)
@@ -429,8 +428,10 @@ class Utils {
   }
 
   static async processSubmissionSearchQuery(query: any, defaults: Partial<SubmissionSearchQuery> = {}): Promise<SubmissionSearchQuery> {
-    let { page, limit, status, statusType, fileSizeThresholdType, fileSizeThreshold, fileDimensionsThresholdType,
-      fileDimensionsThreshold, contentType, sites, inBacklog, hidden, deleted, titleIncludes, descriptionIncludes, order } = query
+    let {
+      page, limit, status, statusType, fileSizeThresholdType, fileSizeThreshold, fileDimensionsThresholdType,
+      fileDimensionsThreshold, contentType, sites, inBacklog, hidden, deleted, titleIncludes, descriptionIncludes, order
+    } = query
 
     let pageParsed = queryParseInt(page, 1, 1, Number.MAX_SAFE_INTEGER)
     let limitParsed = queryParseInt(limit, 75, 1, 300)

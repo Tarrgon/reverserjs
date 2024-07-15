@@ -5,7 +5,7 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("setartist")
     .setDescription("Set the artist you're uploading to if the author isn't linked")
-    .addUserOption((option) =>
+    .addUserOption(option =>
       option.setName("user")
         .setDescription("The discord user of the artist")
         .setRequired(true)

@@ -1,4 +1,4 @@
-/* 
+/*
 TODO:
 MAKE ANOTHER ONE LIKE THIS CALLED RateLimitedImageDownloader
 ALLOW FOR RATE LIMIT ENFORCING BASED ON HEADERS (PASS OPTIONS FOR RATE LIMIT REMAINING AND RESET) OR PASS A FUNCTION THAT GETS THE RESPONSE?
@@ -136,7 +136,7 @@ class RateLimitedImageDownloader {
     }
 
     this.currentlyDownloading++
-    this.download(address, item?.source, item?.headers).then(id => {
+    this.download(address, item?.source, item?.headers).then((id) => {
       this.currentlyDownloading--
       item?.onResolve(id)
     }).catch((e) => {

@@ -142,7 +142,7 @@ class IqdbManager {
   static async addToQueue(submissionId: ObjectId, priority = JobPriority.NORMAL) {
     while (!IqdbManager.ready) await Utils.wait(500)
 
-    let existingJobIndex = IqdbManager.queue.findIndex((job) => job.jobData == submissionId)
+    let existingJobIndex = IqdbManager.queue.findIndex(job => job.jobData == submissionId)
 
     if (existingJobIndex != -1) {
       let job = IqdbManager.queue.queue[existingJobIndex]

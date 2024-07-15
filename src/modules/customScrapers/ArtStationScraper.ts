@@ -37,7 +37,7 @@ class ArtStationScraper {
         page = await ArtStationScraper.browser.newPage()
         await page.goto(`${BASE_URL}/${path}`)
         let pre = await page.waitForSelector("pre", { timeout: 60000 })
-        let json = await pre?.evaluate((e) => e.innerText)
+        let json = await pre?.evaluate(e => e.innerText)
         return resolve(JSON.parse(json))
       } catch (e) {
         reject(e)

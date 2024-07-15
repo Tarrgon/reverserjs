@@ -29,7 +29,7 @@ module.exports = {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (let [_, attachment] of message.attachments) {
-      promises.push(new Promise(async resolve => {
+      promises.push(new Promise(async (resolve) => {
         try {
           let directUrl = attachment.url
           let offsiteId = attachment.id

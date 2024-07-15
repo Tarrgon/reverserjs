@@ -71,7 +71,7 @@ class AggregationManager {
 
     console.log("ADDING TO QUEUE")
 
-    let existingJobIndex = this.queue.findIndex((job) => job.jobData.artistUrlId == artistUrl._id)
+    let existingJobIndex = this.queue.findIndex(job => job.jobData.artistUrlId == artistUrl._id)
 
     if (existingJobIndex != -1) {
       let job = this.queue.queue[existingJobIndex]

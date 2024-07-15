@@ -19,13 +19,13 @@ router.post("/", async (req: Request, res: Response) => {
       return res.json(await IqdbManager.queryImage(file.data, score))
     } else {
       if (!url) return res.sendStatus(400)
-  
+
       return res.json(await IqdbManager.queryUrl(url, score))
     }
-  } catch(e: any) {
+  } catch (e: any) {
     return res.status(400).send(e?.message ?? e)
   }
-  
+
 })
 
 export default () => {

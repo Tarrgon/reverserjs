@@ -36,7 +36,7 @@ class E621IqdbChecker {
   }
 
   static async queueSubmission(submission: Submission, priority = JobPriority.NORMAL, callback: ((hits: IqdbHit[]) => void) | null = null) {
-    let existingJobIndex = E621IqdbChecker.queue.findIndex((job) => job.jobData == submission.md5)
+    let existingJobIndex = E621IqdbChecker.queue.findIndex(job => job.jobData == submission.md5)
 
     if (existingJobIndex != -1) {
       let job = E621IqdbChecker.queue.queue[existingJobIndex]
@@ -353,7 +353,7 @@ class E621IqdbChecker {
                 await Utils.wait(120000)
                 return E621IqdbChecker.processQueue()
               }
-              
+
               if (data) console.error(data)
               if (job.retryNumber >= 10) {
                 if (E621IqdbChecker.callbacks.has(submission.md5)) {

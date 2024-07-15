@@ -90,7 +90,7 @@ class PixivAggregator implements Aggregator {
             let url = illustration.meta_single_page.original_image_url
             let p = ImageDownloader.queueDownload(url, HEADERS)
 
-            p.then(async d => {
+            p.then(async (d) => {
               if (d) {
                 let imageData = { ...d, source: this.submissionTemplate.replace("{siteArtistIdentifier}", artistUrl.urlIdentifier).replace("{siteSubmissionIdentifier}", id), directLinkOffsite: url, offsiteId: `${id}_0` }
                 let prom = Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, title, description, createdAt, imageData.width, imageData.height, imageData.fileSize, imageData.directLinkOffsite, imageData.extension)
@@ -110,7 +110,7 @@ class PixivAggregator implements Aggregator {
               let url = singlePage.image_urls.original
               let p = ImageDownloader.queueDownload(url, HEADERS)
 
-              p.then(async d => {
+              p.then(async (d) => {
                 if (d) {
                   let imageData = { ...d, source: this.submissionTemplate.replace("{siteArtistIdentifier}", artistUrl.urlIdentifier).replace("{siteSubmissionIdentifier}", id), directLinkOffsite: url, offsiteId: `${id}_${i}` }
                   let prom = Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, title, description, createdAt, imageData.width, imageData.height, imageData.fileSize, imageData.directLinkOffsite, imageData.extension)
@@ -143,7 +143,7 @@ class PixivAggregator implements Aggregator {
         await this.setup()
         return await this._internalProcess(artistUrl, latestDate, true)
       }
-      
+
       console.error(`Error with: ${this.host}/${artistUrl.urlIdentifier} (${artistUrl._id})`)
       console.error(e)
       console.error(JSON.stringify(e, null, 4))

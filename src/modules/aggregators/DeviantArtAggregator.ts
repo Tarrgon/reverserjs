@@ -70,7 +70,7 @@ class DeviantArtAggregator implements Aggregator {
           let url = media.mediaUrls[i]
           let p = ImageDownloader.queueDownload(url)
 
-          p.then(async id => {
+          p.then(async (id) => {
             if (id) {
               let imageData = { ...id, source: this.submissionTemplate.replace("{siteArtistIdentifier}", artistUrl.urlIdentifier).replace("{siteSubmissionIdentifier}", media.id), offsiteId: `${media.id}_${i}` }
               let prom = Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, media.title, media.description, media.createdAt, imageData.width, imageData.height, imageData.fileSize, media.isDownloadable ? `/utils/get_deviantart_download/${media.deviationId}` : url, imageData.extension)

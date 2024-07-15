@@ -75,7 +75,7 @@ class ImageDownloader {
     }
 
     ImageDownloader.currentlyDownloading++
-    ImageDownloader.download(item?.source, item?.headers).then(id => {
+    ImageDownloader.download(item?.source, item?.headers).then((id) => {
       ImageDownloader.currentlyDownloading--
       item?.onResolve(id)
     }).catch((e) => {

@@ -145,7 +145,7 @@ class NewgroundsScraper {
             await NewgroundsScraper.getCookie(true, true)
             try {
               resolve(await NewgroundsScraper.makeRequest(url, headers))
-            } catch(e) {
+            } catch (e) {
               reject(e)
             }
 

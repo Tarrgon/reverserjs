@@ -74,7 +74,7 @@ class ItakuAggregator implements Aggregator {
           let url = data.video ? data.video.video : data.image
           let p = ImageDownloader.queueDownload(url)
 
-          p.then(async id => {
+          p.then(async (id) => {
             if (id) {
               let imageData = { ...id, source: this.submissionTemplate.replace("{siteArtistIdentifier}", artistUrl.urlIdentifier).replace("{siteSubmissionIdentifier}", data.id.toString()), offsiteId: `${data.id}_0` }
               let prom = Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, data.title, data.description, date, imageData.width, imageData.height, imageData.fileSize, url, imageData.extension)

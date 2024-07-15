@@ -2,23 +2,21 @@ import Job from "./Job"
 
 function sortedIndex<T>(array: Job<T>[], value: Job<T>): number {
   let low = 0,
-      high = array.length
+    high = array.length
 
   while (low < high) {
-      let mid = (low + high) >>> 1
-      if (array[mid].priority < value.priority || array[mid].retryNumber < value.retryNumber) {
-        high = mid
-      }
-      else if (array[mid].lastAttemptDate && value.lastAttemptDate) {
-        if ((array[mid].lastAttemptDate as Date) < value.lastAttemptDate) low = mid + 1
-        else high = mid
-      }
-      else {
-        if (array[mid].creationDate < value.creationDate) low = mid + 1
-        else high = mid
-      }
+    let mid = (low + high) >>> 1
+    if (array[mid].priority < value.priority || array[mid].retryNumber < value.retryNumber) {
+      high = mid
+    } else if (array[mid].lastAttemptDate && value.lastAttemptDate) {
+      if ((array[mid].lastAttemptDate as Date) < value.lastAttemptDate) low = mid + 1
+      else high = mid
+    } else {
+      if (array[mid].creationDate < value.creationDate) low = mid + 1
+      else high = mid
+    }
   }
-  
+
   return low
 }
 

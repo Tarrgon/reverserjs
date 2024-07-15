@@ -64,7 +64,7 @@ class TwitterAggregator implements Aggregator {
           let url = media.mediaUrls[i]
           let p = ImageDownloader.queueDownload(url)
 
-          p.then(async id => {
+          p.then(async (id) => {
             if (id) {
               let imageData = { ...id, source: this.submissionTemplate.replace("{siteArtistIdentifier}", artistUrl.urlIdentifier).replace("{siteSubmissionIdentifier}", media.id), directLinkOffsite: url, offsiteId: `${media.id}_${i}` }
               let prom = Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, media.title, media.description, media.createdAt, imageData.width, imageData.height, imageData.fileSize, imageData.directLinkOffsite, imageData.extension)
@@ -130,7 +130,7 @@ class TwitterAggregator implements Aggregator {
   }
 
   async getApiIdentifier(urlIdentifier: string): Promise<string | null> {
-    return await TwitterScraper.getApiIdentifier(urlIdentifier) 
+    return await TwitterScraper.getApiIdentifier(urlIdentifier)
   }
 }
 

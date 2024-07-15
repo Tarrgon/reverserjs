@@ -84,66 +84,64 @@ class DiscordAggregator implements Aggregator {
       if (!fromAccount) return this.discordBot.send({ id: message.id, unauthorized: true })
 
       switch (message.data.type) {
-        case "GET_LINKED_ARTIST_ID":
-          {
-            let artistUrl = await ArtistURL.findByUrl(`${BASE_URL}/${(message.data as GetLinkedArtistIdMessage).discordId}`)
-            if (artistUrl) {
-              let artist = await Artist.findByObjectId(artistUrl.artistId)
-              return this.discordBot.send({ id: message.id, data: { id: artist?.id } })
-            }
-
-            return this.discordBot.send({ id: message.id, data: { id: null } })
+        case "GET_LINKED_ARTIST_ID": {
+          let artistUrl = await ArtistURL.findByUrl(`${BASE_URL}/${(message.data as GetLinkedArtistIdMessage).discordId}`)
+          if (artistUrl) {
+            let artist = await Artist.findByObjectId(artistUrl.artistId)
+            return this.discordBot.send({ id: message.id, data: { id: artist?.id } })
           }
 
-        case "ADD_USER_TO_ARTIST":
-          {
-            let addArtistMessage = message.data as AddArtistMessage
-            let url = `${BASE_URL}/${addArtistMessage.artistDiscordId}`
-            let artistUrl = await ArtistURL.findByUrl(url)
-            if (artistUrl) return this.discordBot.send({ id: message.id, data: { id: artistUrl.id } })
+          return this.discordBot.send({ id: message.id, data: { id: null } })
+        }
 
-            let artist = await Artist.findByName(addArtistMessage.artistName)
-            if (!artist) artist = await Artist.create(fromAccount, addArtistMessage.artistName, [url])
-            else {
-              await artist.addArtistUrl(fromAccount, url)
-            }
 
-            return this.discordBot.send({ id: message.id, data: { id: artist.id } })
+        case "ADD_USER_TO_ARTIST": {
+          let addArtistMessage = message.data as AddArtistMessage
+          let url = `${BASE_URL}/${addArtistMessage.artistDiscordId}`
+          let artistUrl = await ArtistURL.findByUrl(url)
+          if (artistUrl) return this.discordBot.send({ id: message.id, data: { id: artistUrl.id } })
+
+          let artist = await Artist.findByName(addArtistMessage.artistName)
+          if (!artist) artist = await Artist.create(fromAccount, addArtistMessage.artistName, [url])
+          else {
+            await artist.addArtistUrl(fromAccount, url)
           }
-        case "IMPORT_MEDIA":
-          {
-            let importMediaMessage = message.data as ImportMediaMessage
 
-            let url = `${BASE_URL}/${importMediaMessage.artistDiscordId}`
-            let artistUrl = await ArtistURL.findByUrl(url)
-            if (!artistUrl) return this.discordBot.send({ id: message.id, data: { code: 404 } })
+          return this.discordBot.send({ id: message.id, data: { id: artist.id } })
+        }
+        case "IMPORT_MEDIA": {
+          let importMediaMessage = message.data as ImportMediaMessage
 
-            let promises: Promise<void>[] = []
-            let added = 0
-            let existing = 0
+          let url = `${BASE_URL}/${importMediaMessage.artistDiscordId}`
+          let artistUrl = await ArtistURL.findByUrl(url)
+          if (!artistUrl) return this.discordBot.send({ id: message.id, data: { code: 404 } })
 
-            for (let discordImageData of importMediaMessage.images) {
-              let buffer = Buffer.from(discordImageData.buffer.data)
-              promises.push(new Promise(async resolve => {
-                let exists = await Submission.findByOffsiteId(discordImageData.offsiteId)
-                if (exists) {
-                  existing++
-                  return resolve()
-                }
+          let promises: Promise<void>[] = []
+          let added = 0
+          let existing = 0
 
-                let id = await Utils.toImageDataFromBuffer(buffer, discordImageData.type)
-                if (!id) return resolve()
-                let imageData = { ...id, source: importMediaMessage.sourceUrl, offsiteId: discordImageData.offsiteId }
-                await Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, "", DTextUtils.markdownToDText(importMediaMessage.content), new Date(importMediaMessage.createdAt), imageData.width, imageData.height, imageData.fileSize, discordImageData.directUrl, imageData.extension)
-                added++
-                resolve()
-              }))
-            }
+          for (let discordImageData of importMediaMessage.images) {
+            let buffer = Buffer.from(discordImageData.buffer.data)
+            promises.push(new Promise(async (resolve) => {
+              let exists = await Submission.findByOffsiteId(discordImageData.offsiteId)
+              if (exists) {
+                existing++
+                return resolve()
+              }
 
-            await Promise.all(promises)
-
-            return this.discordBot.send({ id: message.id, data: { added, existing } })
+              let id = await Utils.toImageDataFromBuffer(buffer, discordImageData.type)
+              if (!id) return resolve()
+              let imageData = { ...id, source: importMediaMessage.sourceUrl, offsiteId: discordImageData.offsiteId }
+              await Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, "", DTextUtils.markdownToDText(importMediaMessage.content), new Date(importMediaMessage.createdAt), imageData.width, imageData.height, imageData.fileSize, discordImageData.directUrl, imageData.extension)
+              added++
+              resolve()
+            }))
           }
+
+          await Promise.all(promises)
+
+          return this.discordBot.send({ id: message.id, data: { added, existing } })
+        }
       }
     })
   }

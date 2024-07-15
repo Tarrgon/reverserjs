@@ -68,7 +68,7 @@ class MastodonAggregator implements Aggregator {
           let url = mastodonMedia.url
           let p = ImageDownloader.queueDownload(url)
 
-          p.then(async id => {
+          p.then(async (id) => {
             if (id) {
               let imageData = { ...id, source: this.submissionTemplate.replace("{siteArtistIdentifier}", artistUrl.urlIdentifier).replace("{siteSubmissionIdentifier}", media.id), offsiteId: mastodonMedia.id }
               let prom = Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, "", mastodonMedia.description.length == 0 ? media.description : `${media.description}\n\n${mastodonMedia.description}`, media.createdAt, imageData.width, imageData.height, imageData.fileSize, url, imageData.extension)

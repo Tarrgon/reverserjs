@@ -23,23 +23,20 @@ export class TweetMedia extends Media {
 
   private static extractUrlFromMedia(media) {
     switch (media.type) {
-      case "photo":
-        {
-          let regex = /media\/(\S*)\.(\S*)$/
-          let data = regex.exec(media.media_url_https)
-          return `https://pbs.twimg.com/media/${data?.[1]}?format=${data?.[2]}&name=orig`
-        }
+      case "photo": {
+        let regex = /media\/(\S*)\.(\S*)$/
+        let data = regex.exec(media.media_url_https)
+        return `https://pbs.twimg.com/media/${data?.[1]}?format=${data?.[2]}&name=orig`
+      }
 
-      case "video":
-        {
-          let variant = media.video_info.variants.sort((a, b) => parseInt(b.bitrate) - parseInt(a.bitrate))[0]
-          return variant.url
-        }
+      case "video": {
+        let variant = media.video_info.variants.sort((a, b) => parseInt(b.bitrate) - parseInt(a.bitrate))[0]
+        return variant.url
+      }
 
-      case "animated_gif":
-        {
-          return media.video_info.variants[0].url
-        }
+      case "animated_gif": {
+        return media.video_info.variants[0].url
+      }
     }
   }
 

@@ -206,51 +206,57 @@ export class PuppetServer {
     // send action to browser
     try {
       switch (action.type) {
-        case "scrolldown":
+        case "scrolldown": {
           await this.page.mouse.wheel({ deltaY: 100 })
           //@ts-ignore
           await this.page.evaluate(() => window.scrollBy(0, 100))
           await Utils.wait(CLICK_DELAY)
 
           break
-        case "scrollup":
+        }
+
+        case "scrollup": {
           await this.page.mouse.wheel({ deltaY: -100 })
           //@ts-ignore
           await this.page.evaluate(() => window.scrollBy(0, -100))
           await Utils.wait(CLICK_DELAY)
           break
-        case "click":
-          {
-            const { x, y } = action
-            await this.page.mouse.click(x, y, { delay: CLICK_DELAY })
-            break
-          }
-        case "mousemove":
-          {
-            const { x, y } = action
-            await this.page.mouse.move(x, y)
-            break
-          }
-        case "mousedown":
-          {
-            const { x, y } = action
-            await this.page.mouse.down()
-            break
-          }
-        case "mouseup":
-          {
-            const { x, y } = action
-            await this.page.mouse.up()
-            break
-          }
-        case "keypress":
-          {
-            await this.page.keyboard.press(action.key)
-            break
-          }
-        default:
+        }
+
+        case "click": {
+          const { x, y } = action
+          await this.page.mouse.click(x, y, { delay: CLICK_DELAY })
+          break
+        }
+
+        case "mousemove": {
+          const { x, y } = action
+          await this.page.mouse.move(x, y)
+          break
+        }
+
+        case "mousedown": {
+          const { x, y } = action
+          await this.page.mouse.down()
+          break
+        }
+
+        case "mouseup": {
+          const { x, y } = action
+          await this.page.mouse.up()
+          break
+        }
+
+        case "keypress": {
+          await this.page.keyboard.press(action.key)
+          break
+        }
+
+        default: {
           console.warn("Error with action", action)
           throw new TypeError(`sendAction received unknown action of type: ${action.type}`)
+        }
+
       }
     } catch { }
   }

@@ -84,7 +84,7 @@ class InkbunnyAggregator implements Aggregator {
             let url = file.file_url_full
             let p = ImageDownloader.queueDownload(url)
 
-            p.then(async id => {
+            p.then(async (id) => {
               if (id) {
                 let imageData = { ...id, source: this.submissionTemplate.replace("{siteArtistIdentifier}", artistUrl.urlIdentifier).replace("{siteSubmissionIdentifier}", order == 1 ? file.submission_id.toString() : `${file.submission_id}-p${order}`), directLinkOffsite: url, offsiteId: `${submission.submission_id}_${order - 1}` }
                 let prom = Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, submission.title, DTextUtils.htmlToDText(Utils.getHtmlElement(submission.description_bbcode_parsed ?? "")), date, imageData.width, imageData.height, imageData.fileSize, imageData.directLinkOffsite, imageData.extension)

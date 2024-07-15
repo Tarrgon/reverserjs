@@ -48,7 +48,7 @@ class DeviantArtScraper {
   }
 
   static getAccessToken(bypassCheck: boolean = false, force: boolean = false): Promise<string> {
-    return new Promise(async (resolve) => resolve(""))
+    return new Promise(async resolve => resolve(""))
 
     return new Promise(async (resolve) => {
       let browser
@@ -316,7 +316,7 @@ class DeviantArtScraper {
 
   static async* getMedia(artistUrl: ArtistURL, job: Job<DeviantArtJobData>): AsyncGenerator<Deviation, void> {
     return
-    
+
     let offset = job.jobData.startingOffset
 
     let params = {

@@ -215,7 +215,7 @@ class MultiIPFetch {
 
       ipData.nextUseTime = Date.now() + Math.random() * 359
       ipData.inUse = false
-    }).catch(e => {
+    }).catch((e) => {
       if (this.rateLimitData[ipData.ip] && this.rateLimitData[ipData.ip][hostName]) {
         let rateLimitData = this.rateLimitData[ipData.ip][hostName]
 

@@ -4,7 +4,7 @@
 //
 // Limitation:
 //  This programs reads all binary at once in memory (100MB).
-//  It is very bad imprementation, but it is still enough for some small WebM file. 
+//  It is very bad imprementation, but it is still enough for some small WebM file.
 // Refer:
 //  http://www.matroska.org/technical/specs/index.html
 // Source: https://gist.github.com/mganeko/9ceee931ac5dde298e81
@@ -46,28 +46,21 @@ class WebmParser {
       // ---- DATA ----
       if (tagName === "EBML") {
         WebmParser._internalParseWebm(buffer, position, (position + result.value))
-      }
-      else if (tagName === "Tracks") {
+      } else if (tagName === "Tracks") {
         WebmParser._internalParseWebm(buffer, position, (position + result.value))
-      }
-      else if (tagName === "TrackEntry") {
+      } else if (tagName === "TrackEntry") {
         WebmParser._internalParseWebm(buffer, position, (position + result.value))
-      }
-      else if (tagName === "Video") {
+      } else if (tagName === "Video") {
         WebmParser._internalParseWebm(buffer, position, (position + result.value))
-      }
-      else if (tagName === "PixelWidth") {
+      } else if (tagName === "PixelWidth") {
         WebmParser.curWidth = WebmParser.scanDataValueU(buffer, position, result.value)
         WebmParser.hasWidth = true
-      }
-      else if (tagName === "PixelHeight") {
+      } else if (tagName === "PixelHeight") {
         WebmParser.curHeight = WebmParser.scanDataValueU(buffer, position, result.value)
         WebmParser.hasHeight = true
-      }
-      else if (tagName === "Segment") {
+      } else if (tagName === "Segment") {
         WebmParser._internalParseWebm(buffer, position, (position + result.value))
-      }
-      else if (tagName === "Cluster") {
+      } else if (tagName === "Cluster") {
         WebmParser._internalParseWebm(buffer, position, (position + result.value))
       }
 
@@ -77,8 +70,7 @@ class WebmParser {
 
       if (position == maxPosition) {
         break
-      }
-      else if (position > maxPosition) {
+      } else if (position > maxPosition) {
         break
       }
     }
@@ -119,7 +111,7 @@ class WebmParser {
     WebmParser.TAG_DICT["[53][AB]"] = "SeekID" // SeekID	3	[53][AB] b
     WebmParser.TAG_DICT["[53][AC]"] = "SeekPosition" // SeekPosition	3	[53][AC] u
 
-    WebmParser.TAG_DICT["[15][49][A9][66]"] = "Info" // Info	1	[15][49][A9][66] m 
+    WebmParser.TAG_DICT["[15][49][A9][66]"] = "Info" // Info	1	[15][49][A9][66] m
 
     WebmParser.TAG_DICT["[16][54][AE][6B]"] = "Tracks" // Tracks	1	[16][54][AE][6B] m
     WebmParser.TAG_DICT["[AE]"] = "TrackEntry" // TrackEntry	2	[AE] m
@@ -150,17 +142,13 @@ class WebmParser {
 
     if (firstByte & 0x80) {
       tagSize = 1
-    }
-    else if (firstByte & 0x40) {
+    } else if (firstByte & 0x40) {
       tagSize = 2
-    }
-    else if (firstByte & 0x20) {
+    } else if (firstByte & 0x20) {
       tagSize = 3
-    }
-    else if (firstByte & 0x10) {
+    } else if (firstByte & 0x10) {
       tagSize = 4
-    }
-    else {
+    } else {
       console.log("ERROR: bad TAG byte")
       return null
     }
@@ -178,36 +166,28 @@ class WebmParser {
     if (firstByte & 0x80) {
       dataSizeSize = 1
       firstMask = 0x7f
-    }
-    else if (firstByte & 0x40) {
+    } else if (firstByte & 0x40) {
       dataSizeSize = 2
       firstMask = 0x3f
-    }
-    else if (firstByte & 0x20) {
+    } else if (firstByte & 0x20) {
       dataSizeSize = 3
       firstMask = 0x1f
-    }
-    else if (firstByte & 0x10) {
+    } else if (firstByte & 0x10) {
       dataSizeSize = 4
       firstMask = 0x0f
-    }
-    else if (firstByte & 0x08) {
+    } else if (firstByte & 0x08) {
       dataSizeSize = 5
       firstMask = 0x07
-    }
-    else if (firstByte & 0x04) {
+    } else if (firstByte & 0x04) {
       dataSizeSize = 6
       firstMask = 0x03
-    }
-    else if (firstByte & 0x02) {
+    } else if (firstByte & 0x02) {
       dataSizeSize = 7
       firstMask = 0x01
-    }
-    else if (firstByte & 0x01) {
+    } else if (firstByte & 0x01) {
       dataSizeSize = 8
       firstMask = 0x00
-    }
-    else {
+    } else {
       console.log("ERROR: bad DATA byte")
       return null
     }
@@ -236,12 +216,10 @@ class WebmParser {
     if (size === 4) {
       let f = buff.readFloatBE(pos)
       return f
-    }
-    else if (size === 8) {
+    } else if (size === 8) {
       let df = buff.readDoubleBE(pos)
       return df
-    }
-    else {
+    } else {
       console.error("ERROR. Bad Float size=" + size)
       return null
     }
