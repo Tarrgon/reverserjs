@@ -54,7 +54,11 @@ class CohostScraper {
   // The cookie stays alive for a week unless a request is made using it.
   // This will keep it alive in the event no requests use it.
   static async keepAlive() {
-    await this.makeRequest("", {})
+    try {
+      await this.makeRequest("", {})
+    } catch (e) {
+      console.error(e)
+    }
 
     setTimeout(() => {
       this.keepAlive()
