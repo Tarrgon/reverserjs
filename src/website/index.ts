@@ -31,6 +31,7 @@ import PixivAggregator from "../modules/aggregators/PixivAggregator"
 import NewgroundsScraper from "../modules/customScrapers/NewgroundsScraper"
 import DTextUtils from "../modules/DTextUtils"
 import Artist from "../modules/Artist"
+import CohostScraper from "../modules/customScrapers/CohostScraper"
 
 declare global {
   namespace Express {
@@ -94,6 +95,7 @@ module.exports = async () => {
     FurAffinityScraper.getTokens()
     DeviantArtScraper.getAccessToken()
     NewgroundsScraper.getCookie()
+    CohostScraper.keepAlive()
 
     const app = express()
 

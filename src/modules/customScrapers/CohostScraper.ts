@@ -50,6 +50,17 @@ export type CohostDehydrated = {
 }
 
 class CohostScraper {
+
+  // The cookie stays alive for a week unless a request is made using it.
+  // This will keep it alive in the event no requests use it.
+  static async keepAlive() {
+    await this.makeRequest("", {})
+
+    setTimeout(() => {
+      this.keepAlive()
+    }, 86400000)
+  }
+
   private static async makeRequest(path, params: Record<string, any>): Promise<any> {
     return new Promise(async (resolve, reject) => {
       let url = new URL(`${BASE_URL}/${path}`)
