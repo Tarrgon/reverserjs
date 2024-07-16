@@ -95,6 +95,8 @@ function fillFormWithUrlSearch() {
   let url = new URL(window.location.href)
 
   for (let [name, value] of url.searchParams) {
+    if (name == "page") continue
+    
     let nameHolder
 
     let negated = false

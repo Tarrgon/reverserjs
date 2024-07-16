@@ -71,6 +71,8 @@ function fillFormWithUrlSearch() {
   let url = new URL(window.location.href)
 
   for (const [name, value] of url.searchParams) {
+    if (name == "page") continue
+    
     let nameHolder
 
     if (!name.endsWith("[]")) nameHolder = document.querySelector(`[name="${name}"]`)
