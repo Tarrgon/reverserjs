@@ -106,6 +106,11 @@ function fillFormWithUrlSearch() {
     if (!name.endsWith("[]")) nameHolder = document.querySelector(`[name="${name}"]`)
     else nameHolder = document.querySelector(`[value="${value}"]`).parentElement
 
+    if (!nameHolder) {
+      console.warn(`Unknown search param: ${name}`)
+      continue
+    }
+
     if (nameHolder.tagName == "SELECT") {
       for (let i = 0; i < nameHolder.options.length; i++) {
         let option = nameHolder.options[i]
