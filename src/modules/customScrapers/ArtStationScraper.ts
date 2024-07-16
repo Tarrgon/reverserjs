@@ -41,6 +41,7 @@ class ArtStationScraper {
         return resolve(JSON.parse(json))
       } catch (e) {
         console.log(`Error making request to: ${BASE_URL}/${path}`)
+        console.error(e)
         reject(e)
       } finally {
         await page?.close()
