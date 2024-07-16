@@ -40,6 +40,7 @@ class ArtStationScraper {
         let json = await pre?.evaluate(e => e.innerText)
         return resolve(JSON.parse(json))
       } catch (e) {
+        console.log(`Error making request to: ${BASE_URL}/${path}`)
         reject(e)
       } finally {
         await page?.close()
