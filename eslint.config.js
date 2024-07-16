@@ -53,7 +53,8 @@ module.exports = tseslint.config(
         "multiline": true,
         "consistent": true
       }],
-      "@stylistic/operator-linebreak": ["error", "before"]
+      "@stylistic/operator-linebreak": ["error", "before"],
+      "@stylistic/space-infix-ops": ["error"]
     }
   },
   {
