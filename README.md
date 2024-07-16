@@ -1,7 +1,6 @@
 # ReverserJS
 
 # TODO:
-- [ ] Login with cohost username/password to auto refresh cookie every week
 - [ ] Convert the discord "bot" to typescript
 - [ ] Convert the file type detector to typescript
 - [ ] Convert the webm parser to typescript
