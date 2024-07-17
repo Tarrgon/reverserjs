@@ -36,7 +36,7 @@
           ctx.textAlign = "center"
           ctx.textBaseline = "middle"
           ctx.fillStyle = "#ABB1BF"
-          ctx.fillText(`${total} Submissions`, canvas.width / 2, chart.legend.bottom + chart.chartArea.height / 2)
+          ctx.fillText(`${total} Submissions`, canvas.getBoundingClientRect().width / 2, chart.legend.bottom + chart.chartArea.height / 2)
         },
       }],
       options: {
@@ -120,8 +120,9 @@
           ctx.textAlign = "center"
           ctx.textBaseline = "middle"
           ctx.fillStyle = "#ABB1BF"
-          ctx.fillText(`${chart.data.datasets[0].data[0]} queued`, canvas.width / 2, chart.legend.bottom + chart.chartArea.height / 2 - 10)
-          ctx.fillText(`${chart.data.datasets[0].data[1]} processing`, canvas.width / 2, chart.legend.bottom + chart.chartArea.height / 2 + 10)
+          let rect = canvas.getBoundingClientRect()
+          ctx.fillText(`${chart.data.datasets[0].data[0]} queued`, rect.width / 2, chart.legend.bottom + chart.chartArea.height / 2 - 10)
+          ctx.fillText(`${chart.data.datasets[0].data[1]} processing`, rect.width / 2, chart.legend.bottom + chart.chartArea.height / 2 + 10)
         },
       }],
       options: {

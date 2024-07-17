@@ -57,6 +57,11 @@ router.get("/:id/upload-url", async (req: Request, res: Response) => {
   if (!submission) return res.status(404).send(`Submission ${id} not found.`)
 
   let url = await submission.getUploadUrl(req.account!)
+  if (url.length > 1024) {
+    return res.render("submissions/uploadredirect", {
+      url
+    })
+  }
   return res.redirect(url)
 })
 
