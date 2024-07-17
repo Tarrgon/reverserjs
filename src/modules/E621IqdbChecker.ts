@@ -21,6 +21,14 @@ class E621IqdbChecker {
 
   private static checkingNow: Job<string>[] = []
 
+  static get queueLength() {
+    return E621IqdbChecker.queue.length
+  }
+
+  static get currentBatchLength() {
+    return E621IqdbChecker.checkingNow.length
+  }
+
   static async setup() {
     console.log("SETUP IQDB QUEUE")
     E621IqdbChecker.ready = false
@@ -69,6 +77,12 @@ class E621IqdbChecker {
     E621IqdbChecker.queue.addJob(job)
 
     if (!E621IqdbChecker.processing) E621IqdbChecker.processQueue()
+
+    E621IqdbChecker.sendServerEventUpdate()
+  }
+
+  private static sendServerEventUpdate() {
+    Globals.serverEvents.send(JSON.stringify([E621IqdbChecker.queueLength, E621IqdbChecker.currentBatchLength]), "iqdb-updates")
   }
 
   private static async retryJob(job: Job<string>) {
@@ -79,6 +93,8 @@ class E621IqdbChecker {
     E621IqdbChecker.queue.addJob(job)
 
     if (!E621IqdbChecker.processing) E621IqdbChecker.processQueue()
+
+    E621IqdbChecker.sendServerEventUpdate()
   }
 
   private static async convertToProperSize(buffer: Buffer): Promise<Buffer> {
@@ -96,6 +112,8 @@ class E621IqdbChecker {
     }
 
     if (!E621IqdbChecker.processing) E621IqdbChecker.processQueue()
+
+    E621IqdbChecker.sendServerEventUpdate()
   }
 
   private static ipRotation: { ip: string, nextUseTime: number, inUse: boolean }[]
@@ -204,6 +222,7 @@ class E621IqdbChecker {
     if (E621IqdbChecker.checkingNow.length > 0) E621IqdbChecker.checkingNow = []
     if (!E621IqdbChecker.queue.hasMoreJobs()) {
       E621IqdbChecker.processing = false
+      E621IqdbChecker.sendServerEventUpdate()
       return
     }
 
@@ -217,6 +236,8 @@ class E621IqdbChecker {
       }
 
       let jobs = E621IqdbChecker.queue.popFirst(100)
+
+      E621IqdbChecker.sendServerEventUpdate()
 
       let submissions: Submission[] = []
 
@@ -276,7 +297,10 @@ class E621IqdbChecker {
         let allSubmissions: Submission[] = await Submission.findManyByMd5(submission.md5)
         if (md5Hits.has(submission.md5)) {
           let index = E621IqdbChecker.checkingNow.findIndex(j => j.jobData == job.jobData)
-          if (index != -1) E621IqdbChecker.checkingNow.splice(index, 1)
+          if (index != -1) {
+            E621IqdbChecker.checkingNow.splice(index, 1)
+            E621IqdbChecker.sendServerEventUpdate()
+          }
 
           let hits: IqdbHit[] = md5Hits.get(submission.md5)!
           for (let submission of allSubmissions) {
@@ -319,7 +343,10 @@ class E621IqdbChecker {
             let res = await E621IqdbChecker.makeRequest(await E621IqdbChecker.getNextIp(), formData)
 
             let index = E621IqdbChecker.checkingNow.findIndex(j => j.jobData == job.jobData)
-            if (index != -1) E621IqdbChecker.checkingNow.splice(index, 1)
+            if (index != -1) {
+              E621IqdbChecker.checkingNow.splice(index, 1)
+              E621IqdbChecker.sendServerEventUpdate()
+            }
 
             if (res.ok) {
               data = await res.json()
@@ -374,7 +401,10 @@ class E621IqdbChecker {
             }
           } catch (e: any) {
             let index = E621IqdbChecker.checkingNow.findIndex(j => j.jobData == job.jobData)
-            if (index != -1) E621IqdbChecker.checkingNow.splice(index, 1)
+            if (index != -1) {
+              E621IqdbChecker.checkingNow.splice(index, 1)
+              E621IqdbChecker.sendServerEventUpdate()
+            }
 
             console.error(`Error fetching e621 iqdb hits for: ${submission._id} (2)`)
             console.error(e)

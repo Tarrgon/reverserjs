@@ -14,6 +14,7 @@
     "express": "^4.18.2",
     "express-fileupload": "^1.5.0",
     "express-session": "^1.18.0",
+    "express-sse-ts": "^1.0.2",
     "filesize": "^10.1.2",
     "form-data-encoder": "^4.0.2",
     "globals": "^15.8.0",

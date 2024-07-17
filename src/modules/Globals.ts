@@ -2,6 +2,7 @@ import { Db } from "mongodb"
 import MultiIPFetch, { HostnameOptions } from "./MultiIPFetch"
 import AggregationManager from "./AggregationManager"
 import fs from "fs"
+import SSE from "express-sse-ts"
 
 export type SiteAuth = { username: string, password: string, email?: string }
 
@@ -37,6 +38,8 @@ class Globals {
   static db: Db
   static configPath: string
   static config: Config
+
+  static serverEvents: SSE
 
   static multiIPFetch: MultiIPFetch
 

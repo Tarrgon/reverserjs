@@ -1,6 +1,7 @@
 import express, { Express, Request, Response, Router } from "express"
 import Utils from "../../modules/Utils"
 import Submission, { BetterVersion } from "../../modules/Submission"
+import E621IqdbChecker from "../../modules/E621IqdbChecker"
 const router = express.Router()
 
 router.get("/", async (req: Request, res: Response) => {
@@ -22,11 +23,17 @@ router.get("/home", async (req: Request, res: Response) => {
     other: await Submission.getCountForQuery({ isDeleted: false, $and: [{ "e621IqdbHits.0": { $exists: true } }, { betterVersion: 0 }] })
   }
 
+  let e621IqdbData = {
+    queueLength: E621IqdbChecker.queueLength,
+    currentBatchLength: E621IqdbChecker.currentBatchLength
+  }
+
   res.render("index", {
     account: req.account,
     utils: Utils,
     headers: req.headers,
-    submissionData
+    submissionData,
+    e621IqdbData
   })
 })
 

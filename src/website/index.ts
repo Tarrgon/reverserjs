@@ -26,12 +26,15 @@ import IqdbManager from "../modules/IqdbManager"
 import FurAffinityScraper from "../modules/customScrapers/FurAffinityScraper"
 import { filesize } from "filesize"
 import fileUpload from "express-fileupload"
+import SSE from "express-sse-ts"
 import DeviantArtScraper from "../modules/customScrapers/DeviantArtScraper"
 import PixivAggregator from "../modules/aggregators/PixivAggregator"
 import NewgroundsScraper from "../modules/customScrapers/NewgroundsScraper"
 import DTextUtils from "../modules/DTextUtils"
 import Artist from "../modules/Artist"
 import CohostScraper from "../modules/customScrapers/CohostScraper"
+
+const serverEvents = new SSE()
 
 declare global {
   namespace Express {
@@ -59,6 +62,7 @@ module.exports = async () => {
     await client.connect()
     const database = client.db(config.mongo.databaseName)
     Globals.db = database
+    Globals.serverEvents = serverEvents
 
     await Globals.db.collection("submissions").createIndex({ id: 1 })
     await Globals.db.collection("submissions").createIndex({ isDeleted: 1 })
@@ -140,6 +144,8 @@ module.exports = async () => {
 
       req.account = account
 
+      if (req.path.startsWith("/status")) return
+
       if (account?.admin) {
         if (!req.path.startsWith("/puppet") && !req.path.startsWith("/data")) {
           if (FurAffinityScraper.needCaptchaDone) {
@@ -159,6 +165,8 @@ module.exports = async () => {
       next()
     })
 
+    app.get("/stream", serverEvents.init)
+
     // routers
     for (let p of fs.readdirSync(path.join(__dirname, "routes"))) {
       if (!p.endsWith(".js")) continue
@@ -166,6 +174,10 @@ module.exports = async () => {
       let data = require(path.join(__dirname, "routes", p)).default()
       app.use(data.path, data.router)
     }
+
+    setInterval(() => {
+      serverEvents.send("keepalive", "keepalive")
+    }, 60000)
 
     return app
   } catch (e) {

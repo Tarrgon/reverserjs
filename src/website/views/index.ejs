@@ -15,104 +15,13 @@
     <div class="column is-4">
       <canvas id="submissions-chart"></canvas>
     </div>
+    <div class="column is-4">
+      <canvas id="e621iqdb-chart"></canvas>
+    </div>
   </div>
 
-  <script>
-    let canvas = document.getElementById('submissions-chart')
-    let ctx = canvas.getContext("2d")
-    let total = <%- submissionData.deletedPosts + submissionData.notUploaded + submissionData.uploaded %>
-
-    let myPieChart = new Chart(ctx, {
-      type: "doughnut",
-      data: {
-        datasets: [{
-            data: [<%- submissionData.deletedPosts %>, <%- submissionData.notUploaded %>, <%- submissionData.uploaded %>],
-            backgroundColor: ["#750000", "#cf3030", "#3c3"],
-          },
-          {
-            data: [<%- submissionData.deletedPosts %>, <%- submissionData.notUploaded %>, <%- submissionData.exactMatch %>, <%- submissionData.potentiallyBetter %>, <%- submissionData.probableReplacement %>, <%- submissionData.other %>],
-            backgroundColor: ["#750000", "#cf3030", "#0f0", "#ecd13c", "#f28436", "#3cdaec"],
-          }
-        ],
-
-        labels: [
-          "Deleted",
-          "Not uploaded",
-          "Uploaded",
-          "Deleted",
-          "Not uploaded",
-          "Exact match",
-          "Potentially better version",
-          "Probable replacement",
-          "Other"
-        ]
-      },
-      plugins: [{
-        afterDraw: (chart) => {
-          let ctx = chart.ctx
-          ctx.font = "bold 20px Arial"
-          ctx.textAlign = "center"
-          ctx.textBaseline = "middle"
-          ctx.fillStyle = "#ABB1BF"
-          ctx.fillText(`${total} Submissions`, canvas.width / 2, chart.legend.bottom + chart.chartArea.height / 2)
-        },
-      }],
-      options: {
-        plugins: {
-          legend: {
-            labels: {
-              generateLabels: (chart) => {
-                let original = Chart.overrides.doughnut.plugins.legend.labels.generateLabels
-                let labelsOriginal = original.call(this, chart)
-
-                let datasetColors = chart.data.datasets.map((e) => {
-                  return e.backgroundColor
-                })
-
-                datasetColors = datasetColors.flat()
-
-                labelsOriginal.forEach(label => {
-                  label.datasetIndex = (label.index - label.index % 2) / 2
-
-                  label.hidden = false
-
-                  label.fillStyle = datasetColors[label.index]
-                })
-
-                return labelsOriginal
-              }
-            },
-            onClick: (mouseEvent, legendItem, legend) => {
-              return false
-            }
-          },
-          tooltip: {
-            callbacks: {
-              title: (context) => {
-                let labelIndex = (context[0].datasetIndex * 3) + context[0].dataIndex
-                if (labelIndex > 4) return context[0].chart.data.labels[2]
-                return context[0].chart.data.labels[labelIndex % 3]
-              },
-
-              label: (context) => {
-                let labelIndex = (context.datasetIndex * 3) + context.dataIndex
-                return context.chart.data.labels[labelIndex] + ': ' + context.formattedValue
-              }
-            }
-          },
-          title: {
-            display: true,
-            text: "Submissions",
-            color: "#ABB1BF",
-            font: {
-              weight: "bold",
-              size: 24
-            }
-          }
-        }
-      }
-    })
-  </script>
+  <!-- Cursed -->
+  <%- include("./index.js.ejs"); %>
 </body>
 
 </html>
