@@ -267,7 +267,26 @@ let submissionsFunctions = {
         document.getElementById(`delete-${id}`).classList.remove("hidden")
       }
     }
-  ]
+  ],
+
+  regenerateAll: [
+    async (event, ids) => {
+      let res = await fetch(`/submissions/regeneratesamples/many`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ ids })
+      })
+
+      if (!res.ok) {
+        console.error(await res.text())
+        return alert("Error, check console")
+      }
+
+      alert("Done.")
+    }
+  ],
 }
 
 async function addSubmissionToBacklog(event, id) {
@@ -379,6 +398,18 @@ async function undeleteAll(event) {
   }
 
   for (let func of submissionsFunctions.undeleteAll) {
+    await func(event, ids)
+  }
+}
+
+async function regenerateAll(event) {
+  let ids = []
+
+  for (let element of document.querySelectorAll(".submission:has(.is-selected)")) {
+    ids.push(parseInt(element.getAttribute("data-submission-id")))
+  }
+
+  for (let func of submissionsFunctions.regenerateAll) {
     await func(event, ids)
   }
 }

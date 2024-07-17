@@ -111,6 +111,19 @@ router.get("/multiview", async (req: Request, res: Response) => {
   })
 })
 
+router.post("/regeneratesamples/many", async (req: Request, res: Response) => {
+  if (!req.body.ids) return res.status(400).send("No ids present")
+
+  let submissions = await Submission.findByIds(req.body.ids)
+
+  for (let submission of submissions) {
+    let generatedSample = await Utils.generateSample(submission)
+    await submission.setSampleGenerated(generatedSample)
+  }
+
+  return res.sendStatus(200)
+})
+
 // This deletes many
 router.post("/delete/many", async (req: Request, res: Response) => {
   if (!req.body.ids) return res.status(400).send("No ids present")
