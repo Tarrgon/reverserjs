@@ -178,6 +178,7 @@ class Artist {
   }
 
   async deleteArtist() {
+    console.log(`Deleting artist: ${this.name}`)
     await ArtistURL.deleteMany(await this.getArtistUrls())
     await Globals.db.collection("artists").deleteOne({ _id: this._id })
 
@@ -187,6 +188,8 @@ class Artist {
         account.removeWatchedArtist(this._id)
       }
     }
+
+    console.log(`Finished deleting artist: ${this.name}`)
   }
 
   async removeArtistUrlById(id: number, removedBy: Account): Promise<boolean> {
