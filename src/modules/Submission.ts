@@ -354,6 +354,18 @@ class Submission {
     }
   }
 
+  async destroy() {
+    if (fs.existsSync(this.getFilePath())) fs.unlinkSync(this.getFilePath())
+    if (fs.existsSync(this.getThumbnailPath())) fs.unlinkSync(this.getThumbnailPath())
+
+    for await (let acc of Account.findByQuery({})) {
+      let account = Account.fromDoc(acc)
+      await account.removeReferenceToSubmission(this._id)
+    }
+
+    await Globals.db.collection("submissions").deleteOne({ _id: this._id })
+  }
+
   async deleteSubmission(deletedBy: Account) {
     let additionalData = this.additionalData || {}
     additionalData.deletedBy = deletedBy._id
@@ -548,7 +560,10 @@ class Submission {
   }
 
   static async deleteMany(ids: ObjectId[]) {
-    await Globals.db.collection("submissions").deleteMany({ _id: { $in: ids } })
+    for (let sub of await Submission.findManyByObjectId(ids)) {
+      let submission = Submission.fromDoc(sub)
+      await submission.destroy()
+    }
   }
 
   static async getAllSubmissions(forAccount: Account, query: SubmissionSearchQuery, andWebify: boolean = false): Promise<{ submissions: (Submission | WebifiedSubmission)[], totalPages: number }> {

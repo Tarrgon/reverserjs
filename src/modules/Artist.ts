@@ -178,9 +178,6 @@ class Artist {
   }
 
   async deleteArtist() {
-    // await Submission.deleteMany(this.submissions)
-    let urls = await this.getArtistUrls()
-    await Submission.deleteMany(urls.map(u => u.submissions).flat())
     await ArtistURL.deleteMany(await this.getArtistUrls())
     await Globals.db.collection("artists").deleteOne({ _id: this._id })
 
