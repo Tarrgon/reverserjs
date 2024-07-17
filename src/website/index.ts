@@ -128,7 +128,8 @@ module.exports = async () => {
     app.use(cors())
 
     app.use(async (req, res, next) => {
-      if (req.path.startsWith("/js") || req.path.startsWith("/css") || req.path.startsWith("img") || req.path == "/favicon.ico") return
+      // TODO: Find out a better way to do this
+      if (req.path.startsWith("/data") || req.path.startsWith("/js") || req.path.startsWith("/css") || req.path.startsWith("img") || req.path == "/favicon.ico") return next()
 
       let account = await Account.findBySessionId(req.session.id)
 
@@ -144,7 +145,7 @@ module.exports = async () => {
 
       req.account = account
 
-      if (req.path.startsWith("/status")) return
+      if (req.path.startsWith("/status")) return next()
 
       if (account?.admin) {
         if (!req.path.startsWith("/puppet") && !req.path.startsWith("/data")) {

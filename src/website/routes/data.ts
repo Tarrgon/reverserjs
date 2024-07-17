@@ -5,7 +5,7 @@ import Submission from "../../modules/Submission"
 import fs from "fs"
 const router = express.Router()
 
-router.get("/imgs/:md5", (req: Request, res: Response) => {
+router.get("/imgs/:md5.:ext", (req: Request, res: Response) => {
   let md5 = req.params.md5
 
   let first = md5.slice(0, 2)
@@ -22,7 +22,7 @@ router.get("/imgs/:md5", (req: Request, res: Response) => {
   return res.sendStatus(404)
 })
 
-router.get("/thumbs/:md5", (req: Request, res: Response) => {
+router.get("/thumbs/:md5.:ext", (req: Request, res: Response) => {
   let md5 = req.params.md5
 
   let first = md5.slice(0, 2)
