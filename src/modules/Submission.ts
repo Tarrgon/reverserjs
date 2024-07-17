@@ -319,13 +319,13 @@ class Submission {
   }
 
   getWebPath(): string {
-    return `/data/imgs/${this.md5}`
+    return `/data/imgs/${this.md5}.${this.extension}`
   }
 
   getThumbnailWebPath(): string {
     if (!this.sampleGenerated) return "/img/no_sample.jpg"
 
-    return `/data/thumbs/${this.md5}`
+    return `/data/thumbs/${this.md5}.jpg`
   }
 
   getFileBuffer(): Buffer {

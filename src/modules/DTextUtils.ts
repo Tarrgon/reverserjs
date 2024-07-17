@@ -74,7 +74,10 @@ class DTextUtils {
 
       case "#comment":
       case "IMG": return "" // Images get destroyed :(
-      case "BR": return "\n"
+      case "BR":
+        return "\n"
+      case "HR":
+        return "\n\n"
       case "P": return `${DTextUtils.innerText(entry)}\n`
 
       default: return DTextUtils.innerText(entry)
@@ -91,7 +94,10 @@ class DTextUtils {
     switch (entry.tagName) {
       case "#comment":
       case "IMG": return "" // Images get destroyed :(
-      case "BR": return "\n"
+      case "BR":
+        return "\n"
+      case "HR":
+        return "\n\n"
 
       case "A": return DTextUtils.getLink(entry, false)
 
