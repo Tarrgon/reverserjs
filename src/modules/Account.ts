@@ -153,7 +153,7 @@ class Account {
 
   async getAllWatchedSubmissions(query: SubmissionSearchQuery, andWebify: boolean = false): Promise<{ submissions: (Submission | WebifiedSubmission)[], totalPages: number }> {
     let q = Utils.buildSubmissionQuery(this, query, {
-      artistId: { $in: this.artistIds },
+      artistUrlId: { $in: (await this.getArtists() as Artist[]).flatMap(a => a.urls) },
       isDeleted: false
     })
     let submissions: (Submission | WebifiedSubmission)[] = []
@@ -238,14 +238,24 @@ class Account {
   //   return doc
   // }
 
-  async getArtists(): Promise<WebifiedArtist[]> {
-    let artists: WebifiedArtist[] = []
+  async getArtists(andWebify: boolean = false): Promise<(WebifiedArtist[] | Artist[])> {
+    if (andWebify) {
+      let artists: WebifiedArtist[] = []
 
-    for (let id of this.artistIds) {
-      artists.push(await ((await Artist.findByObjectId(id)) as Artist).webify())
+      for (let id of this.artistIds) {
+        artists.push(await ((await Artist.findByObjectId(id)) as Artist).webify())
+      }
+
+      return artists
+    } else {
+      let artists: Artist[] = []
+
+      for (let id of this.artistIds) {
+        artists.push((await Artist.findByObjectId(id)) as Artist)
+      }
+
+      return artists
     }
-
-    return artists
   }
 
   // async getWatchedArtists(page: number): Promise<Artist[]> {
