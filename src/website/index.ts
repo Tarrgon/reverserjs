@@ -33,6 +33,7 @@ import NewgroundsScraper from "../modules/customScrapers/NewgroundsScraper"
 import DTextUtils from "../modules/DTextUtils"
 import Artist from "../modules/Artist"
 import CohostScraper from "../modules/customScrapers/CohostScraper"
+import History from "../modules/History"
 
 const serverEvents = new SSE()
 
@@ -100,6 +101,8 @@ module.exports = async () => {
     DeviantArtScraper.getAccessToken()
     NewgroundsScraper.getCookie()
     CohostScraper.keepAlive()
+
+    History.startRoutine()
 
     const app = express()
 

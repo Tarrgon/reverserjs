@@ -3,6 +3,7 @@
     let canvas = document.getElementById('submissions-chart')
     let ctx = canvas.getContext("2d")
     let total = <%- submissionData.deletedPosts + submissionData.notUploaded + submissionData.uploaded %>
+    let other = total - <%- submissionData.deletedPosts + submissionData.notUploaded + submissionData.exactMatch + submissionData.probableReplacement %>
 
     new Chart(ctx, {
       type: "doughnut",
@@ -12,8 +13,8 @@
             backgroundColor: ["#750000", "#cf3030", "#3c3"],
           },
           {
-            data: [<%- submissionData.deletedPosts %>, <%- submissionData.notUploaded %>, <%- submissionData.exactMatch %>, <%- submissionData.potentiallyBetter %>, <%- submissionData.probableReplacement %>, <%- submissionData.other %>],
-            backgroundColor: ["#750000", "#cf3030", "#0f0", "#ecd13c", "#f28436", "#3cdaec"],
+            data: [<%- submissionData.deletedPosts %>, <%- submissionData.notUploaded %>, <%- submissionData.exactMatch %>, <%- submissionData.probableReplacement %>, other],
+            backgroundColor: ["#750000", "#cf3030", "#0f0", "#f28436", "#3cdaec"],
           }
         ],
 
@@ -24,7 +25,6 @@
           "Deleted",
           "Not uploaded",
           "Exact match",
-          "Potentially better version",
           "Probable replacement",
           "Other"
         ]
