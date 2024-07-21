@@ -229,160 +229,187 @@ class E621IqdbChecker {
     E621IqdbChecker.processing = true
 
     new Promise(async () => {
-      let timesWaited = 0
-      while (timesWaited < 3 && E621IqdbChecker.queue.length < 100) {
-        await Utils.wait(1000)
-        timesWaited++
-      }
-
-      let jobs = E621IqdbChecker.queue.popFirst(100)
-
-      E621IqdbChecker.sendServerEventUpdate()
-
-      let submissions: Submission[] = []
-
-      for (let job of jobs) {
-        let submission = await Submission.findByMd5(job.jobData)
-        if (!submission) {
-          await Globals.db.collection("e621IqdbQueue").deleteOne({ jobId: job._id })
-          await job.setErrorData("Submission not found")
-        } else {
-          submissions.push(submission)
-        }
-      }
-
-      E621IqdbChecker.checkingNow = jobs
-
-      let md5Hits: Map<string, IqdbHit[]> = new Map()
-
       try {
-        let md5Form = new FormData()
-        md5Form.append("tags", `md5:${submissions.map(s => s.md5).join(",")}`)
-        md5Form.append("limit", "320")
-
-        let res = await E621IqdbChecker.makeRequest(Globals.config.e621IqdbRotation[Globals.config.e621IqdbRotation.length - 1], md5Form, "/posts.json", "GET", false)
-
-        if (res.ok) {
-          let md5Data = await res.json() as any
-
-          if (md5Data.posts) {
-            for (let post of md5Data.posts) {
-              if (!md5Hits.has(post.file.md5)) md5Hits.set(post.file.md5, [])
-
-              let hit: IqdbHit = {
-                id: post.id,
-                sourceUrl: `https://e621.net/posts/${post.id}`,
-                directLink: `https://static1.e621.net/data/${post.file.md5.slice(0, 2)}/${post.file.md5.slice(2, 4)}/${post.file.md5}.${post.file.ext}`,
-                score: 100,
-                md5: post.file.md5,
-                fileSize: post.file.size,
-                width: post.file.width,
-                height: post.file.height,
-                fileType: post.file.ext
-              }
-
-              md5Hits.get(post.file.md5)!.push(hit)
-            }
-          }
-        } else {
-          console.error(await res.text())
+        let timesWaited = 0
+        while (timesWaited < 3 && E621IqdbChecker.queue.length < 100) {
+          await Utils.wait(1000)
+          timesWaited++
         }
-      } catch (e) {
-        console.error(`Error during md5 check for ${submissions.map(s => s.md5).join(",")}:`)
-        console.error(e)
-      }
 
-      for (let submission of submissions) {
-        let job: Job<string> = jobs.find(j => j.jobData == submission.md5)!
-        let allSubmissions: Submission[] = await Submission.findManyByMd5(submission.md5)
-        if (md5Hits.has(submission.md5)) {
-          let index = E621IqdbChecker.checkingNow.findIndex(j => j.jobData == job.jobData)
-          if (index != -1) {
-            E621IqdbChecker.checkingNow.splice(index, 1)
-            E621IqdbChecker.sendServerEventUpdate()
+        let jobs = E621IqdbChecker.queue.popFirst(100)
+
+        E621IqdbChecker.sendServerEventUpdate()
+
+        let submissions: Submission[] = []
+
+        for (let job of jobs) {
+          let submission = await Submission.findByMd5(job.jobData)
+          if (!submission) {
+            await Globals.db.collection("e621IqdbQueue").deleteOne({ jobId: job._id })
+            await job.setErrorData("Submission not found")
+          } else {
+            submissions.push(submission)
           }
+        }
 
-          let hits: IqdbHit[] = md5Hits.get(submission.md5)!
-          for (let submission of allSubmissions) {
-            await submission.addE621IqdbHits(...hits)
-          }
+        E621IqdbChecker.checkingNow = jobs
 
-          if (E621IqdbChecker.callbacks.has(submission.md5)) {
-            for (let callback of E621IqdbChecker.callbacks.get(submission.md5) as ((hits: IqdbHit[]) => void)[]) {
-              callback(hits)
+        let md5Hits: Map<string, IqdbHit[]> = new Map()
+
+        try {
+          let md5Form = new FormData()
+          md5Form.append("tags", `md5:${submissions.map(s => s.md5).join(",")}`)
+          md5Form.append("limit", "320")
+
+          let res = await E621IqdbChecker.makeRequest(Globals.config.e621IqdbRotation[Globals.config.e621IqdbRotation.length - 1], md5Form, "/posts.json", "GET", false)
+
+          if (res.ok) {
+            let md5Data = await res.json() as any
+
+            if (md5Data.posts) {
+              for (let post of md5Data.posts) {
+                if (!md5Hits.has(post.file.md5)) md5Hits.set(post.file.md5, [])
+
+                let hit: IqdbHit = {
+                  id: post.id,
+                  sourceUrl: `https://e621.net/posts/${post.id}`,
+                  directLink: `https://static1.e621.net/data/${post.file.md5.slice(0, 2)}/${post.file.md5.slice(2, 4)}/${post.file.md5}.${post.file.ext}`,
+                  score: 100,
+                  md5: post.file.md5,
+                  fileSize: post.file.size,
+                  width: post.file.width,
+                  height: post.file.height,
+                  fileType: post.file.ext
+                }
+
+                md5Hits.get(post.file.md5)!.push(hit)
+              }
             }
-
-            E621IqdbChecker.callbacks.delete(submission.md5)
+          } else {
+            console.error(await res.text())
           }
+        } catch (e) {
+          console.error(`Error during md5 check for ${submissions.map(s => s.md5).join(",")}:`)
+          console.error(e)
+        }
 
-          await job.setStatus(JobStatus.COMPLETE)
-          await Globals.db.collection("e621IqdbQueue").deleteOne({ jobId: job._id })
-        } else {
-          let buffer = !VIDEO_EXTENSIONS.includes(submission.extension) ? submission.getFileBuffer() : submission.getThumbnailBuffer()
-
-          let formData = new FormData()
-
-          let imageBuffer: Buffer
-
-          try {
-            imageBuffer = await E621IqdbChecker.convertToProperSize(buffer)
-          } catch (e) {
-            console.error(`ERROR CONVERTING TO PROPER SIZE FOR IQDB WITH: ${submission._id}`)
-            console.error(e)
-            continue
-          }
-
-          formData.append("search[file]", new Blob([imageBuffer]))
-          formData.append("search[score_cutoff]", "80")
-
-          let data
-
-          let hits: IqdbHit[] = []
-
-          try {
-            let res = await E621IqdbChecker.makeRequest(await E621IqdbChecker.getNextIp(), formData)
-
+        for (let submission of submissions) {
+          let job: Job<string> = jobs.find(j => j.jobData == submission.md5)!
+          let allSubmissions: Submission[] = await Submission.findManyByMd5(submission.md5)
+          if (md5Hits.has(submission.md5)) {
             let index = E621IqdbChecker.checkingNow.findIndex(j => j.jobData == job.jobData)
             if (index != -1) {
               E621IqdbChecker.checkingNow.splice(index, 1)
               E621IqdbChecker.sendServerEventUpdate()
             }
 
-            if (res.ok) {
-              data = await res.json()
-              if (!data.posts) {
-                console.log(`Adding hits for ${submission.md5}`)
+            let hits: IqdbHit[] = md5Hits.get(submission.md5)!
+            for (let submission of allSubmissions) {
+              await submission.addE621IqdbHits(...hits)
+            }
 
-                for (let hit of E621IqdbChecker.getHitsFromData(data)) {
-                  if (hits.find(h => h.id == hit.id)) continue
-                  hits.push(hit)
+            if (E621IqdbChecker.callbacks.has(submission.md5)) {
+              for (let callback of E621IqdbChecker.callbacks.get(submission.md5) as ((hits: IqdbHit[]) => void)[]) {
+                callback(hits)
+              }
+
+              E621IqdbChecker.callbacks.delete(submission.md5)
+            }
+
+            await job.setStatus(JobStatus.COMPLETE)
+            await Globals.db.collection("e621IqdbQueue").deleteOne({ jobId: job._id })
+          } else {
+            let buffer = !VIDEO_EXTENSIONS.includes(submission.extension) ? submission.getFileBuffer() : submission.getThumbnailBuffer()
+
+            let formData = new FormData()
+
+            let imageBuffer: Buffer
+
+            try {
+              imageBuffer = await E621IqdbChecker.convertToProperSize(buffer)
+            } catch (e) {
+              console.error(`ERROR CONVERTING TO PROPER SIZE FOR IQDB WITH: ${submission._id}`)
+              console.error(e)
+              continue
+            }
+
+            formData.append("search[file]", new Blob([imageBuffer]))
+            formData.append("search[score_cutoff]", "80")
+
+            let data
+
+            let hits: IqdbHit[] = []
+
+            try {
+              let res = await E621IqdbChecker.makeRequest(await E621IqdbChecker.getNextIp(), formData)
+
+              let index = E621IqdbChecker.checkingNow.findIndex(j => j.jobData == job.jobData)
+              if (index != -1) {
+                E621IqdbChecker.checkingNow.splice(index, 1)
+                E621IqdbChecker.sendServerEventUpdate()
+              }
+
+              if (res.ok) {
+                data = await res.json()
+                if (!data.posts) {
+                  console.log(`Adding hits for ${submission.md5}`)
+
+                  for (let hit of E621IqdbChecker.getHitsFromData(data)) {
+                    if (hits.find(h => h.id == hit.id)) continue
+                    hits.push(hit)
+                  }
+                } else {
+                  console.log(`No hits for ${submission.md5}`)
                 }
+
+                await job.setStatus(JobStatus.COMPLETE)
+                await Globals.db.collection("e621IqdbQueue").deleteOne({ jobId: job._id })
               } else {
-                console.log(`No hits for ${submission.md5}`)
+                if (res.status == 520 || res.status == 502 || res.status == 429) {
+                  E621IqdbChecker.checkingNow = []
+                  await E621IqdbChecker.retryJobs(jobs)
+                  await Utils.wait(120000)
+                  return E621IqdbChecker.processQueue()
+                }
+
+                let errorText = await res.text()
+                console.error(`Error fetching e621 iqdb hits for: ${submission._id} (1)`)
+                console.error(errorText)
+                console.error(res.status)
+                if (errorText.includes("Throttled")) {
+                  E621IqdbChecker.checkingNow = []
+                  await E621IqdbChecker.retryJobs(jobs)
+                  await Utils.wait(120000)
+                  return E621IqdbChecker.processQueue()
+                }
+
+                if (data) console.error(data)
+                if (job.retryNumber >= 10) {
+                  if (E621IqdbChecker.callbacks.has(submission.md5)) {
+                    for (let callback of E621IqdbChecker.callbacks.get(submission.md5) as ((hits: IqdbHit[]) => void)[]) {
+                      callback([])
+                    }
+
+                    E621IqdbChecker.callbacks.delete(submission.md5)
+                  }
+
+                  await Globals.db.collection("e621IqdbQueue").deleteOne({ jobId: job._id })
+                  await job.setErrorData(errorText)
+                  continue
+                }
+
+                await E621IqdbChecker.retryJob(job)
+              }
+            } catch (e: any) {
+              let index = E621IqdbChecker.checkingNow.findIndex(j => j.jobData == job.jobData)
+              if (index != -1) {
+                E621IqdbChecker.checkingNow.splice(index, 1)
+                E621IqdbChecker.sendServerEventUpdate()
               }
 
-              await job.setStatus(JobStatus.COMPLETE)
-              await Globals.db.collection("e621IqdbQueue").deleteOne({ jobId: job._id })
-            } else {
-              if (res.status == 520 || res.status == 502 || res.status == 429) {
-                E621IqdbChecker.checkingNow = []
-                await E621IqdbChecker.retryJobs(jobs)
-                await Utils.wait(120000)
-                return E621IqdbChecker.processQueue()
-              }
-
-              let errorText = await res.text()
-              console.error(`Error fetching e621 iqdb hits for: ${submission._id} (1)`)
-              console.error(errorText)
-              console.error(res.status)
-              if (errorText.includes("Throttled")) {
-                E621IqdbChecker.checkingNow = []
-                await E621IqdbChecker.retryJobs(jobs)
-                await Utils.wait(120000)
-                return E621IqdbChecker.processQueue()
-              }
-
-              if (data) console.error(data)
+              console.error(`Error fetching e621 iqdb hits for: ${submission._id} (2)`)
+              console.error(e)
+              if (data) console.error(JSON.stringify(data))
               if (job.retryNumber >= 10) {
                 if (E621IqdbChecker.callbacks.has(submission.md5)) {
                   for (let callback of E621IqdbChecker.callbacks.get(submission.md5) as ((hits: IqdbHit[]) => void)[]) {
@@ -393,51 +420,30 @@ class E621IqdbChecker {
                 }
 
                 await Globals.db.collection("e621IqdbQueue").deleteOne({ jobId: job._id })
-                await job.setErrorData(errorText)
+                await job.setErrorData(e)
                 continue
               }
 
               await E621IqdbChecker.retryJob(job)
             }
-          } catch (e: any) {
-            let index = E621IqdbChecker.checkingNow.findIndex(j => j.jobData == job.jobData)
-            if (index != -1) {
-              E621IqdbChecker.checkingNow.splice(index, 1)
-              E621IqdbChecker.sendServerEventUpdate()
+
+            for (let submission of allSubmissions) {
+              await submission.addE621IqdbHits(...hits)
             }
 
-            console.error(`Error fetching e621 iqdb hits for: ${submission._id} (2)`)
-            console.error(e)
-            if (data) console.error(JSON.stringify(data))
-            if (job.retryNumber >= 10) {
-              if (E621IqdbChecker.callbacks.has(submission.md5)) {
-                for (let callback of E621IqdbChecker.callbacks.get(submission.md5) as ((hits: IqdbHit[]) => void)[]) {
-                  callback([])
-                }
-
-                E621IqdbChecker.callbacks.delete(submission.md5)
+            if (E621IqdbChecker.callbacks.has(submission.md5)) {
+              for (let callback of E621IqdbChecker.callbacks.get(submission.md5) as ((hits: IqdbHit[]) => void)[]) {
+                callback(hits)
               }
 
-              await Globals.db.collection("e621IqdbQueue").deleteOne({ jobId: job._id })
-              await job.setErrorData(e)
-              continue
+              E621IqdbChecker.callbacks.delete(submission.md5)
             }
-
-            await E621IqdbChecker.retryJob(job)
-          }
-
-          for (let submission of allSubmissions) {
-            await submission.addE621IqdbHits(...hits)
-          }
-
-          if (E621IqdbChecker.callbacks.has(submission.md5)) {
-            for (let callback of E621IqdbChecker.callbacks.get(submission.md5) as ((hits: IqdbHit[]) => void)[]) {
-              callback(hits)
-            }
-
-            E621IqdbChecker.callbacks.delete(submission.md5)
           }
         }
+      } catch (e) {
+        console.error("Top level e621 iqdb error:")
+        console.error(e)
+        await Utils.wait(20000)
       }
 
       E621IqdbChecker.checkingNow = []
