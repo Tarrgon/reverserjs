@@ -105,11 +105,11 @@ class MastodonScraper {
       } else {
         let statuses = (data as MastodonStatus[])
 
-        if (statuses.length < 40) break
-
         for (let status of statuses) {
           yield new MastodonMedia(status)
         }
+
+        if (statuses.length < 40) break
 
         params.max_id = statuses[statuses.length - 1].id
       }
