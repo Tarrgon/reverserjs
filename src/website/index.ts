@@ -34,6 +34,7 @@ import DTextUtils from "../modules/DTextUtils"
 import Artist from "../modules/Artist"
 import CohostScraper from "../modules/customScrapers/CohostScraper"
 import History from "../modules/History"
+import ArtFightScraper from "../modules/customScrapers/ArtFightScraper"
 
 const serverEvents = new SSE()
 
@@ -96,11 +97,13 @@ module.exports = async () => {
     await E621IqdbChecker.setup()
     await IqdbManager.setup()
 
+    // TODO: Make a generic scraper interface that needs login to automate this
     TwitterScraper.getTokens()
     FurAffinityScraper.getTokens()
     DeviantArtScraper.getAccessToken()
     NewgroundsScraper.getCookie()
     CohostScraper.keepAlive()
+    ArtFightScraper.getToken()
 
     History.startRoutine()
 

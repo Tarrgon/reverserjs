@@ -127,6 +127,15 @@
       "allowedIPs": [
         "0.0.0.0"
       ]
+    },
+    {
+      "hostName": "artfight.net",
+      "aliases": [
+        "www.artfight.net"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
     }
   ],
   "imageDownloadIps": ["0.0.0.0"],
@@ -156,6 +165,10 @@
     "password": ""
   },
   "newgroundsAuth": {
+    "username": "",
+    "password": ""
+  },
+  "artFightAuth": {
     "username": "",
     "password": ""
   },

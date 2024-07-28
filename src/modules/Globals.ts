@@ -25,6 +25,7 @@ export type Config = {
   pixivRefreshToken: string
   blueSkyAuth: SiteAuth
   newgroundsAuth: SiteAuth
+  artFightAuth: SiteAuth
   cohostCookie: string
   weasylApiKey: string
   internal: { ssl: { privateKeyLocation: string, certificateLocation: string, chainLocation: string } }
