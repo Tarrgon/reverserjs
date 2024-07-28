@@ -15,7 +15,7 @@
     <h1 class="is-size-1 has-text-light">Submission from <a href="/artists/<%- submission.artistReference.id %>" class="has-text-info"><%- submission.artistReference.name %></a></h1>
     <br />
     <div id="submissions-container" class="columns m-3">
-      <div id="submission-<%-submission.id%>" data-submission-id="<%-submission.id%>" class="submission column is-2">
+      <div id="submission-<%-submission.id%>" data-submission-id="<%-submission.id%>" class="submission column is-2-fullhd is-3-widescreen is-4-desktop">
         <%- include("../partials/submissions/submission", {includeScore: false}) %>
       </div>
       <div class="column">
@@ -28,8 +28,49 @@
       </div>
     </div>
     <br />
+    <% if (similar && similar.length > 0) { %>
     <h2 class="is-size-2 has-text-light">Similar</h2>
     <%- include("../partials/submissions/listing", {options: {enableSearch: false, includeScore: true, my: "", centered: false, includePages: false, primarySubmission: submission}, submissions: similar}) %>
+    <% } else { %>
+    <div id="preview-container" class="columns is-centered hidden overlay black-transparent-background" style="width:100%; margin:0;">
+      <div class="column is-10" style="padding:0; width:unset;">
+        <div id="preview-image-container" class="card is-radiusless hidden">
+          <div class="card-image">
+            <figure class="image">
+              <img id="preview-image" class="is-radiusless" />
+            </figure>
+          </div>
+        </div>
+        <div id="preview-video-container" class="hidden">
+          <video id="preview-video" controls loop onvolumechange="previewVolumeChanged(event)"></video>
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/submissions/listing.js"></script>
+    <script src="/js/submissions/submission.js"></script>
+    <script>
+      let formatter = Intl.DateTimeFormat(navigator.languages, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      })
+
+      for (let element of document.querySelectorAll("[data-datetime]")) {
+        let value = element.getAttribute("data-datetime")
+        let date = new Date(value)
+        element.innerText = formatter.format(date)
+      }
+
+      for (let element of document.querySelectorAll("[data-datetime-title]")) {
+        let value = element.getAttribute("data-datetime-title")
+        let date = new Date(value)
+        element.title = formatter.format(date)
+      }
+    </script>
+    <% } %>
   </div>
 
 </body>
