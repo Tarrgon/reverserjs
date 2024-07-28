@@ -10,10 +10,12 @@ class History {
       uploaded: await Submission.getCountForQuery({ isDeleted: false, "e621IqdbHits.0": { $exists: true } }),
       exactMatch: await Submission.getCountForQuery({ isDeleted: false, betterVersion: { $bitsAllSet: BetterVersion.EXACT } }),
       probableReplacement: await Submission.getCountForQuery({ isDeleted: false, "e621IqdbHits.0": { "$exists": true }, $or: [{ betterVersionNotDeleted: { $bitsAllSet: BetterVersion.BIGGER_DIMENSIONS | BetterVersion.SAME_FILE_TYPE, $bitsAllClear: BetterVersion.EXACT } }, { betterVersionNotDeleted: { $bitsAllSet: BetterVersion.BIGGER_DIMENSIONS | BetterVersion.BETTER_FILE_TYPE, $bitsAllClear: BetterVersion.EXACT } }] }),
+      total: 0,
       other: 0
     }
 
     let total = snapshot.deletedPosts + snapshot.notUploaded + snapshot.uploaded
+    snapshot.total = total
     snapshot.other = total - (snapshot.deletedPosts + snapshot.notUploaded + snapshot.exactMatch + snapshot.probableReplacement)
 
     await Globals.db.collection("history").updateOne({ type: "submissionData" }, { $push: { data: { takenAt: date, snapshot } } }, { upsert: true })
