@@ -163,7 +163,7 @@ class ArtFightScraper {
 
     while (true) {
       let html = await ArtFightScraper.makeRequest(`~${artistUrl.urlIdentifier}/attacks`, { page })
-      let attacks = Array.from(html.querySelectorAll(".profile-attacks-body a")).map(e => e.getAttribute("data-id")!)
+      let attacks = Array.from(html.querySelectorAll(".profile-attacks-body a")).map(e => e.getAttribute("data-id")!).filter(id => id)
 
       if (attacks.length == 0) break
 
