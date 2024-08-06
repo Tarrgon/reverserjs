@@ -46,7 +46,7 @@
             <a href="<%- url.url %>" class="is-size-5"><%- url.urlIdentifier || artist.name %></a>
           </span>
           <span>
-            <% if (url.aggregator != -1 && !aggregators[url.aggregator].canFetch) { %>
+            <% if (url.aggregator == -1 || !aggregators[url.aggregator] || !aggregators[url.aggregator].canFetch) { %>
             <i class="fa-solid fa-x has-text-danger" title="Fetching not supported"></i>
             <% } else { %>
             <% if (url.status == 0 || url.status == 3) { %>

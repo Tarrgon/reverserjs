@@ -5,6 +5,59 @@
     let total = <%- submissionData.deletedPosts + submissionData.notUploaded + submissionData.uploaded %>
     let other = total - <%- submissionData.deletedPosts + submissionData.notUploaded + submissionData.exactMatch + submissionData.probableReplacement %>
 
+    <% const colors = [
+      "#75cd34",
+      "#4d24c2",
+      "#60e633",
+      "#cf37ea",
+      "#53cb5a",
+      "#743dde",
+      "#c6cd28",
+      "#925cec",
+      "#88b940",
+      "#6a32a5",
+      "#eab426",
+      "#7172e7",
+      "#f04514",
+      "#6284e1",
+      "#e67c20",
+      "#5848a0",
+      "#b8b549",
+      "#c855d3",
+      "#61ce87",
+      "#dd46b2",
+      "#5e9b47",
+      "#e03470",
+      "#55bfa3",
+      "#db2f21",
+      "#4dc1ce",
+      "#dd3640",
+      "#599fd3",
+      "#e05728",
+      "#8684d2",
+      "#d09d31",
+      "#8f3381",
+      "#c5b66b",
+      "#c884d7",
+      "#766d20",
+      "#d14c89",
+      "#609a6c",
+      "#d04356",
+      "#505c28",
+      "#d188bd",
+      "#c5883f",
+      "#4f4c84",
+      "#b2471c",
+      "#aa99d0",
+      "#e27455",
+      "#83375f",
+      "#bbae77",
+      "#a64751",
+      "#b87a61",
+      "#d38195",
+      "#994a2d"
+    ] %>
+
     new Chart(ctx, {
       type: "doughnut",
       data: {
@@ -15,6 +68,10 @@
           {
             data: [<%- submissionData.deletedPosts %>, <%- submissionData.notUploaded %>, <%- submissionData.exactMatch %>, <%- submissionData.probableReplacement %>, other],
             backgroundColor: ["#750000", "#cf3030", "#0f0", "#f28436", "#3cdaec"],
+          },
+          {
+            data: [<%- Object.values(submissionData.countsPerSite).join(", ") %>],
+            backgroundColor: ["<%- Object.values(submissionData.countsPerSite).map((a, i) => colors[i]).join('","') %>"],
           }
         ],
 
@@ -26,7 +83,8 @@
           "Not uploaded",
           "Exact match",
           "Probable replacement",
-          "Other"
+          "Other",
+          "<%- Object.keys(submissionData.countsPerSite).join('","') %>"
         ]
       },
       plugins: [{
@@ -71,13 +129,19 @@
           tooltip: {
             callbacks: {
               title: (context) => {
-                let labelIndex = (context[0].datasetIndex * 3) + context[0].dataIndex
+                let labelIndex = context[0].dataIndex
+                for (let i = 0; i < context[0].datasetIndex; i++) {
+                  labelIndex += context[0].chart.data.datasets[i].data.length
+                }
                 if (labelIndex > 4) return context[0].chart.data.labels[2]
                 return context[0].chart.data.labels[labelIndex % 3]
               },
 
               label: (context) => {
-                let labelIndex = (context.datasetIndex * 3) + context.dataIndex
+                let labelIndex = context.dataIndex
+                for (let i = 0; i < context.datasetIndex; i++) {
+                  labelIndex += context.chart.data.datasets[i].data.length
+                }
                 return context.chart.data.labels[labelIndex] + ': ' + context.formattedValue
               }
             }

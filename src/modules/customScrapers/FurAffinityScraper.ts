@@ -205,7 +205,7 @@ class FurAffinityScraper {
     } catch (e) {
       console.error("ERROR IN FA SCRAPER")
       console.error(e)
-      return []
+      throw e
     }
   }
 

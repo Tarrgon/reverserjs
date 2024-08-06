@@ -11,6 +11,7 @@ import Logs, { ArtistRemovalLog, LogType } from "./Logs"
 export const ARTIST_LISTING_LIMIT: number = 20
 
 export type WebifiedArtist = Partial<Artist> & Partial<{ submissionReferences: Submission[], urlReferences: WebifiedArtistURL[], noteReferences: { noter: string, content: string }[], lastScrapedAt: Date | null }>
+export type WithUrlReferences<T> = T & { urlReferences: WebifiedArtistURL[] }
 
 export type ArtistNote = {
   noter: ObjectId

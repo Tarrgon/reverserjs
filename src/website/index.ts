@@ -74,6 +74,7 @@ module.exports = async () => {
     await Globals.db.collection("submissions").createIndex({ betterVersion: 1 })
     await Globals.db.collection("submissions").createIndex({ betterVersionNotDeleted: 1 })
     await Globals.db.collection("submissions").createIndex({ e621IqdbHits: 1 })
+    await Globals.db.collection("submissions").createIndex({ aggregatorIndex: 1 })
 
     await Globals.db.collection("artistUrls").createIndex({ id: 1 })
 

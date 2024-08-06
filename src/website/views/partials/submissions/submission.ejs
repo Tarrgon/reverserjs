@@ -25,6 +25,11 @@
           </a>
         </span>
         <span><a href="/artists/<%- submission.artistReference.id %>"><%- submission.artistReference.name %></a></span>
+        <% if (submission.artistReference.urlReferences.find(u => u.aggregator == 4)) { %>
+        <span class="ml-1">
+          <i class="fa-solid fa-x has-text-warning" title="Artist has a DeviantArt which is no longer sourced."></i>
+        </span>
+        <% } %>
         <br />
         <span><%- submission.width %>x<%- submission.height %> </span>
         <br />

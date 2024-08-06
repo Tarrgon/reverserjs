@@ -4,12 +4,20 @@ import Submission, { BetterVersion } from "./Submission"
 class History {
 
   private static async takeSnapshot(date: Date) {
+    let countsPerSite = {}
+
+    for (let aggregator of Globals.aggregationManager.aggregators) {
+      if (!aggregator) continue
+      countsPerSite[aggregator.displayName] = await Submission.getCountForQuery({ aggregatorIndex: aggregator.index })
+    }
+
     let snapshot = {
       deletedPosts: await Submission.getCountForQuery({ isDeleted: true }),
       notUploaded: await Submission.getCountForQuery({ isDeleted: false, e621IqdbHits: { $size: 0 } }),
       uploaded: await Submission.getCountForQuery({ isDeleted: false, "e621IqdbHits.0": { $exists: true } }),
       exactMatch: await Submission.getCountForQuery({ isDeleted: false, betterVersion: { $bitsAllSet: BetterVersion.EXACT } }),
       probableReplacement: await Submission.getCountForQuery({ isDeleted: false, "e621IqdbHits.0": { "$exists": true }, $or: [{ betterVersionNotDeleted: { $bitsAllSet: BetterVersion.BIGGER_DIMENSIONS | BetterVersion.SAME_FILE_TYPE, $bitsAllClear: BetterVersion.EXACT } }, { betterVersionNotDeleted: { $bitsAllSet: BetterVersion.BIGGER_DIMENSIONS | BetterVersion.BETTER_FILE_TYPE, $bitsAllClear: BetterVersion.EXACT } }] }),
+      countsPerSite,
       total: 0,
       other: 0
     }

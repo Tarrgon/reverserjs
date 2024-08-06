@@ -22,6 +22,10 @@ export class Attack extends Media {
 
     let a = Array.from(html.querySelectorAll("a[href^='https://images.artfight.net/attack']")).find(a => a.innerText == "Full view") as HTMLElement
 
+    if (!a) {
+      console.error(`[ArtFight] CAN'T FIND IMAGE FULL IMAGE FOR: ${id}`)
+    }
+
     super(id, html.querySelector(".h2.profile-header-name u")!.innerText, DTextUtils.htmlToDText(html.querySelector("#attack-content > .clearfix")), [a.getAttribute("href")!.split("?")[0]], date!)
   }
 }

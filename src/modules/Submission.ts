@@ -7,7 +7,7 @@ import Utils, { E6_ALLOWED_EXTENSIONS, VIDEO_EXTENSIONS } from "./Utils"
 import path from "path"
 import Aggregator from "../interfaces/Aggregator"
 import fs from "fs"
-import Artist from "./Artist"
+import Artist, { WithUrlReferences } from "./Artist"
 import { filesize } from "filesize"
 import IqdbManager from "./IqdbManager"
 import { SubmissionSearchQuery } from "../interfaces/SearchQueries"
@@ -35,7 +35,7 @@ export type AdditionalData = {
   undeletedBy?: ObjectId
 }
 
-export type WebifiedSubmission = Partial<Submission> & Partial<{ artistReference: Artist, artistUrlReference: ArtistURL, aggregator: Aggregator | null, dateTime: any }>
+export type WebifiedSubmission = Partial<Submission> & Partial<{ artistReference: Partial<WithUrlReferences<Artist>>, artistUrlReference: ArtistURL, aggregator: Aggregator | null, dateTime: any }>
 export type WithIqdbHit<T> = T & { hit: IqdbHit }
 
 class Submission {
@@ -406,6 +406,7 @@ class Submission {
 
     doc.artistUrlReference = await this.getArtistUrl()
     doc.artistReference = await doc.artistUrlReference.getArtist()
+    doc.artistReference!.urlReferences = await doc.artistReference!.getArtistUrls!()
     doc.aggregator = await this.getAggregator()
     doc.dateTime = DateTime.fromJSDate(doc.creationDate)
     doc.hit = hit
@@ -422,6 +423,7 @@ class Submission {
 
     doc.artistUrlReference = await this.getArtistUrl()
     doc.artistReference = await doc.artistUrlReference.getArtist()
+    doc.artistReference!.urlReferences = await doc.artistReference!.getArtistUrls!()
     doc.aggregator = await this.getAggregator()
     doc.dateTime = DateTime.fromJSDate(doc.creationDate)
 
@@ -539,12 +541,12 @@ class Submission {
     return (await Globals.db.collection("submissions").find({ _id: { $in: ids }, ...additionalQuery }).toArray()).map(s => Submission.fromDoc(s))
   }
 
-  static async findManyById(forAccount: Account | null, ids: number[], limit: number, page: number, andWebify: boolean = false): Promise<Submission[] | (Partial<Submission> & Partial<{ artistReference: Artist, artistUrlReference: ArtistURL }>)[]> {
+  static async findManyById(forAccount: Account | null, ids: number[], limit: number, page: number, andWebify: boolean = false): Promise<Submission[] | WebifiedSubmission[]> {
     if (!andWebify) return (await Globals.db.collection("submissions").find({ id: { $in: ids } }).sort({ creationDate: -1 }).skip((page - 1) * limit).limit(limit).toArray()).map(s => Submission.fromDoc(s))
     else {
       let submissions = (await Globals.db.collection("submissions").find({ id: { $in: ids } }).sort({ creationDate: -1 }).skip((page - 1) * limit).limit(limit).toArray()).map(s => Submission.fromDoc(s))
 
-      let s: (Partial<Submission> & Partial<{ artistReference: Artist, artistUrlReference: ArtistURL }>)[] = []
+      let s: WebifiedSubmission[] = []
 
       for (let submission of submissions) {
         s.push(await submission.webify(forAccount))
