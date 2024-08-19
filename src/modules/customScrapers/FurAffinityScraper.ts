@@ -167,7 +167,10 @@ class FurAffinityScraper {
         headers: await FurAffinityScraper.getHeaders(data != null),
         onResolve: async (res: Response) => {
           // resolve("")
-          if (!res.ok) return reject(new Error(await res.text()))
+          if (!res.ok) {
+            console.log(res.headers)
+            return reject(new Error(await res.text()))
+          }
 
           return resolve(await res.text())
         },

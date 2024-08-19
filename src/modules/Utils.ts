@@ -281,6 +281,7 @@ class Utils {
           } else {
             console.error(`Error generating submission thumbnail for: ${input} (2)`)
             console.error(errorData)
+            return resolve(false)
           }
 
           return resolve(exists)
@@ -334,6 +335,7 @@ class Utils {
           } else {
             console.error(`Error generating submission thumbnail for: ${submission.getFilePath()} (${submission._id}) (2)`)
             console.error(errorData)
+            return resolve(false)
           }
 
           return resolve(exists)

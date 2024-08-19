@@ -245,19 +245,23 @@ class Submission {
 
     let tags = [artist.name?.replaceAll(" ", "_")?.toLowerCase() ?? ""]
 
-    if (forAccount?.settings?.autoAddDateTag) tags.push(this.creationDate.getFullYear().toString())
+    let sources: Set<string> = new Set([this.sourceUrl])
 
-    let sources: Set<string> = new Set()
-    sources.add(this.sourceUrl)
+    let allSimilar: Submission[] = [this]
 
     if (forAccount?.settings?.sourceSimilarityCutoff == null || forAccount.settings.sourceSimilarityCutoff < 100) {
-      let similar = await this.getSimilar(forAccount?.settings?.sourceSimilarityCutoff ?? 85)
+      let similar = await this.getSimilar(forAccount?.settings?.sourceSimilarityCutoff ?? 90)
 
       for (let hit of similar) {
         let sub = await Submission.findById(hit.id)
-        if (sub) sources.add(sub.sourceUrl)
+        if (sub) {
+          sources.add(sub.sourceUrl)
+          allSimilar.push(sub)
+        }
       }
     }
+
+    if (forAccount?.settings?.autoAddDateTag) tags.push(allSimilar.sort((a, b) => a.creationDate.getTime() - b.creationDate.getTime())[0].creationDate.getFullYear().toString())
 
     let url = this.directLinkOffsite ?? ""
 
@@ -266,6 +270,7 @@ class Submission {
     }
 
     return `https://e621.net/uploads/new?upload_url=${encodeURIComponent(url)}&tags=${tags.map(t => encodeURIComponent(t)).join("%20")}&sources=${Array.from(sources).map(s => encodeURIComponent(s)).join("%2C")}&description=${encodeURIComponent(description)}`
+    // return `https://e621.net/uploads/new?upload_url=${encodeURIComponent(url)}&tags-artist=${artist.name?.replaceAll(" ", "_")?.toLowerCase() ?? ""}&tags=${tags.map(t => encodeURIComponent(t)).join("%20")}&sources=${Array.from(sources).map(s => encodeURIComponent(s)).join("%2C")}&description=${encodeURIComponent(description)}`
   }
 
   queueE621IqdbCheck(priority: JobPriority = JobPriority.NORMAL): void {

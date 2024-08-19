@@ -104,7 +104,7 @@ module.exports = async () => {
     DeviantArtScraper.getAccessToken()
     NewgroundsScraper.getCookie()
     CohostScraper.keepAlive()
-    ArtFightScraper.getToken()
+    // ArtFightScraper.getToken()
 
     History.startRoutine()
 
