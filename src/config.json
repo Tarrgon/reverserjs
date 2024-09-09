@@ -14,6 +14,7 @@
     "dataDirectory": "iqdb",
     "port": 5588
   },
+  "baseDomain": "https://reverser.yiff.today",
   "e621Auth": "Basic ",
   "multiIPFetchOptions": [
     {

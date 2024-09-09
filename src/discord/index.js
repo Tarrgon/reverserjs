@@ -50,7 +50,6 @@ for (const file of menuFiles) {
   menus.push(menu)
 }
 
-
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand() && !interaction.isContextMenuCommand()) return
 

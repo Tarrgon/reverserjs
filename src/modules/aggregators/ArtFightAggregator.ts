@@ -30,7 +30,7 @@ class ArtFightAggregator implements Aggregator {
 
   ready: boolean = false
   inUse: boolean = false
-  canFetch: boolean = false
+  canFetch: boolean = true
   canSearch: boolean = true
 
   constructor(manager: AggregationManager) {

@@ -14,6 +14,7 @@ export type Config = {
     dataDirectory: string
     port: number
   }
+  baseDomain: string
   e621Auth: string
   multiIPFetchOptions: HostnameOptions[]
   imageDownloadIps: string[]
@@ -21,7 +22,7 @@ export type Config = {
   twitterAuth: SiteAuth
   furAffinityAuth: SiteAuth
   inkBunnyAuth: SiteAuth
-  deviantArtAuth: SiteAuth & { clientId: string, clientSecret: string }
+  deviantArtAuth: { clientId: string, clientSecret: string }
   pixivRefreshToken: string
   blueSkyAuth: SiteAuth
   newgroundsAuth: SiteAuth

@@ -67,7 +67,7 @@ class BlueSkyScraper {
       if (!feed.data.feed || feed.data.feed.length == 0) break
 
       for (let feedItem of feed.data.feed) {
-        if (feedItem.reply) continue
+        // if (feedItem.reply) continue
         let record = (feedItem.post.record as { createdAt: string, text: string, embed: { $type: string, media: { images: { image: BlobRef }[] }, images: { image: BlobRef }[] } })
         let description: string = record.text
         let id = feedItem.post.uri.slice(feedItem.post.uri.lastIndexOf("/") + 1)

@@ -62,7 +62,7 @@ function discardArtistNameEdit() {
 
 async function removeUrlFromArtist(artistUrlId, urlId) {
   let urlElement = document.getElementById(`url-${urlId}`)
-  
+
   try {
     let res = await fetch(`/artists/${artistUrlId}/edit`, {
       method: "PATCH",
@@ -84,6 +84,56 @@ async function removeUrlFromArtist(artistUrlId, urlId) {
 
     alert("Error removing url. Check console")
   }
+}
+
+async function purgeBeforeChanged(event, artistUrlId) {
+  let date = new Date(event.target.value)
+
+  if (!confirm(`This action will purge every submission prior to ${date.toUTCString()}. Continue?`)) return
+
+  try {
+    let res = await fetch(`/artists/${artistUrlId}/edit`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ purgeBefore: date })
+    })
+
+    if (!res.ok) {
+      console.error(await res.text())
+
+      alert("Error setting. Check console")
+    } else {
+      window.location.reload()
+    }
+  } catch (e) {
+    console.error(e)
+
+    alert("Error setting. Check console")
+  }
+}
+
+function openSettings() {
+  let settings = document.getElementById("collapsible-settings")
+  let openButton = document.getElementById("open-settings-button")
+  let closeButton = document.getElementById("close-settings-button")
+
+  openButton.classList.add("hidden")
+  closeButton.classList.remove("hidden")
+
+  settings.classList.remove("hidden")
+}
+
+function closeSettings() {
+  let settings = document.getElementById("collapsible-settings")
+  let openButton = document.getElementById("open-settings-button")
+  let closeButton = document.getElementById("close-settings-button")
+
+  closeButton.classList.add("hidden")
+  openButton.classList.remove("hidden")
+
+  settings.classList.add("hidden")
 }
 
 async function beginUrlAdd(artistUrlId) {

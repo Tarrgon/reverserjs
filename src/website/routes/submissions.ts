@@ -74,8 +74,16 @@ router.delete("/:id/iqdbhits", async (req: Request, res: Response) => {
 
   if (!submission) return res.status(404).send(`Submission ${id} not found.`)
 
-  await submission.deleteIqdbHitWithPostId(req.body.postId)
-  return res.sendStatus(200)
+  try {
+    await submission.deleteIqdbHitWithPostId(req.body.postId)
+    return res.sendStatus(200)
+  } catch (e: any) {
+    if (e.isMd5match) return res.status(400).json({ isMd5Match: true })
+    else {
+      console.error(e)
+      return res.sendStatus(500)
+    }
+  }
 })
 
 router.get("/:id.json", async (req: Request, res: Response) => {
@@ -231,13 +239,13 @@ router.post("/:id/update", async (req: Request, res: Response) => {
   if (!submission) return res.status(404).send(`Submission ${id} not found.`)
 
   if (wait) {
-    await submission.purgeE621IqdbHits()
+    await submission.purgeE621IqdbHits(false)
 
     let hits: WithHumanReadableSize<IqdbHit>[] = (await submission.queueE621IqdbCheckAndWait()).map(hit => Utils.addHumanReadableSize(hit))
 
     return res.json({ hits, submission })
   } else {
-    await submission.purgeE621IqdbHits()
+    await submission.purgeE621IqdbHits(false)
     submission.queueE621IqdbCheck(JobPriority.IMMEDIATE)
     return res.sendStatus(200)
   }

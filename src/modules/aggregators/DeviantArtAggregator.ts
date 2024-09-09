@@ -32,7 +32,7 @@ class DeviantArtAggregator implements Aggregator {
 
   ready: boolean = false
   inUse: boolean = false
-  canFetch: boolean = false
+  canFetch: boolean = true
   canSearch: boolean = true
 
   constructor(manager: AggregationManager) {
@@ -82,7 +82,7 @@ class DeviantArtAggregator implements Aggregator {
             if (e.message == "token validation failed") {
               console.error("TOKEN VALIDATION FAILED. REGENERATING!")
               paused = true
-              await DeviantArtScraper.forceNewToken()
+              await DeviantArtScraper.getAccessToken(true)
               paused = false
               return
             }

@@ -202,6 +202,26 @@ class IqdbManager {
     }
   }
 
+  static async removeId(id: number): Promise<boolean> {
+    try {
+      let res = await fetch(`http://localhost:${Globals.config.iqdb.port}/images/${id}`, {
+        method: "DELETE"
+      })
+
+      if (!res.ok) {
+        console.error(`Error deleting IQDB data for ${id}:`)
+        console.error(await res.text())
+        return false
+      }
+
+      return true
+    } catch (e) {
+      console.error(`FAILED TO REMOVE SUBMISSION ${id} FROM IQDB`)
+      console.error(e)
+      return false
+    }
+  }
+
   static async queryUrl(url: string, scoreCutoff: number = 85): Promise<IqdbHit[]> {
     try {
       let match

@@ -528,6 +528,13 @@ async function deleteIqdbHit(event, id, postId) {
   })
 
   if (!res.ok) {
+    if (res.headers["Content-Type"] == "application/json") {
+      let data = await res.json()
+      if (data.isMd5Match) return alert("Cannot delete exact matches.")
+
+      console.error(data)
+      return alert("Error, check console")
+    }
     console.error(await res.text())
     return alert("Error, check console")
   }

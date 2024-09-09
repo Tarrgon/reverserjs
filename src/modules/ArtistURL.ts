@@ -194,7 +194,7 @@ class ArtistURL {
     }
   }
 
-  static async create(artistId: ObjectId, createdBy: ObjectId, url: string, queue: boolean = true): Promise<ArtistURL | undefined> {
+  static async create(artistId: ObjectId, createdBy: ObjectId, purgeBefore: Date | null | undefined, url: string, queue: boolean = true): Promise<ArtistURL | undefined> {
     if (!Utils.isValidUrl(url)) return
 
     url = Utils.normalizeUrl(url)
@@ -215,7 +215,7 @@ class ArtistURL {
     let _id = new ObjectId()
     let id = await Utils.getNextId("artistUrls")
 
-    let artistUrl = new ArtistURL(_id, createdBy, new Date(), id, artistId, url, [], identifiers?.urlIdentifier ?? "", identifiers?.apiIdentifier ?? "", ArtistURLStatus.QUEUED)
+    let artistUrl = new ArtistURL(_id, createdBy, new Date(), id, artistId, url, [], identifiers?.urlIdentifier ?? "", identifiers?.apiIdentifier ?? "", ArtistURLStatus.QUEUED, purgeBefore ? purgeBefore : undefined)
 
     await Globals.db.collection("artistUrls").insertOne(artistUrl)
 

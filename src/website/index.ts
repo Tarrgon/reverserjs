@@ -163,10 +163,6 @@ module.exports = async () => {
           if (NewgroundsScraper.needsCode) {
             return res.redirect("/puppet/newgrounds")
           }
-
-          if (DeviantArtScraper.needCaptchaDone) {
-            return res.redirect("/puppet/deviantart")
-          }
         }
       }
 
@@ -174,6 +170,22 @@ module.exports = async () => {
     })
 
     app.get("/stream", serverEvents.init)
+    app.get("/deviantartcallback", async (req, res) => {
+      console.log(req.query)
+      let u = new URL("https://www.deviantart.com/oauth2/token")
+      u.searchParams.set("client_id", Globals.config.deviantArtAuth.clientId)
+      u.searchParams.set("client_secret", Globals.config.deviantArtAuth.clientSecret)
+      u.searchParams.set("grant_type", "authorization_code")
+      u.searchParams.set("code", req.query.code as string)
+      u.searchParams.set("redirect_uri", Globals.config.baseDomain + "/deviantartcallback")
+      let r = await fetch(u.toString())
+
+      let data = await r.json() as { access_token: string, expires_in: number, refresh_token: string }
+
+      await Globals.db.collection("tokens").updateOne({ id: "deviantart" }, { $set: { accessToken: data.access_token, fetchNewTokensAt: new Date(Date.now() + (data.expires_in * 1000) - 1000), refreshToken: data.refresh_token } })
+
+      res.redirect(Globals.config.baseDomain)
+    })
 
     // routers
     for (let p of fs.readdirSync(path.join(__dirname, "routes"))) {

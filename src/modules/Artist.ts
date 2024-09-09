@@ -96,6 +96,14 @@ class Artist {
     return submissions
   }
 
+  async querySubmissions(query: any = {}): Promise<Submission[]> {
+    let urls = await this.getArtistUrls()
+
+    let submissions: Submission[] = await Submission.findManyByObjectId(urls.map(u => u.submissions).flat(), query)
+
+    return submissions
+  }
+
   async addNote(from: Account, content: string): Promise<void> {
     let note: ArtistNote = { noter: from._id, content }
     this.notes.push(note)
@@ -106,6 +114,20 @@ class Artist {
     if (index >= this.notes.length) return
     this.notes.splice(index, 1)
     await Globals.db.collection("artists").updateOne({ _id: this._id }, { $set: { notes: this.notes } })
+  }
+
+  async setPurgeBefore(purgeBefore: Date | null) {
+    this.purgeBefore = purgeBefore
+
+    await Globals.db.collection("artists").updateOne({ _id: this._id }, { $set: { purgeBefore } })
+
+    if (purgeBefore == null) return
+
+    let submissions = await this.querySubmissions({ creationDate: { $lt: purgeBefore } })
+
+    for (let submission of submissions) {
+      await submission.destroy()
+    }
   }
 
   async addArtistUrl(createdBy: Account, url: string, queue: boolean = true): Promise<ArtistURL> {
@@ -132,7 +154,7 @@ class Artist {
       }
     }
 
-    let artistUrl = await ArtistURL.create(this._id, createdBy._id, url, queue) as ArtistURL
+    let artistUrl = await ArtistURL.create(this._id, createdBy._id, this.purgeBefore, url, queue) as ArtistURL
 
     await Globals.db.collection("artists").updateOne({ _id: this._id }, { $push: { urls: artistUrl._id } })
 
@@ -315,7 +337,7 @@ class Artist {
 
   private static BEING_ADDED: Record<string, Promise<Artist>> = {}
 
-  static async create(createdBy: Account, name: string, urls: string[], notes: string = "", purgeBefore = null): Promise<Artist> {
+  static async create(createdBy: Account, name: string, urls: string[], notes: string = "", purgeBefore: Date | null = null): Promise<Artist> {
     let existing = await Artist.findByName(name.trim())
 
     urls = Array.from(new Set(urls.map(u => Utils.normalizeUrl(u))))
@@ -339,7 +361,7 @@ class Artist {
 
       for (let url of urls) {
         if (!Utils.isValidUrl(url)) continue
-        let u = await ArtistURL.create(_id, createdBy._id, url, false) as ArtistURL
+        let u = await ArtistURL.create(_id, createdBy._id, purgeBefore, url, false) as ArtistURL
         artistUrls.push(u)
       }
 

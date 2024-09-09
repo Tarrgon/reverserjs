@@ -62,8 +62,9 @@ class Submission {
   additionalData?: AdditionalData
 
   e621IqdbHits: IqdbHit[]
+  deletedE621IqdbHits: number[]
 
-  constructor(_id: ObjectId, id: number, aggregatorIndex: number, offsiteId: string, artistUrlId: ObjectId, isDeleted: boolean, md5: string, title: string, description: string, scrapeDate: Date, creationDate: Date, width: number, height: number, fileSize: number, sourceUrl: string, directLinkOffsite: string, extension: string, betterVersion: BetterVersion, betterVersionNotDeleted: BetterVersion, sampleGenerated: boolean, e621IqdbHits: IqdbHit[] = [], additionalData: AdditionalData = {}) {
+  constructor(_id: ObjectId, id: number, aggregatorIndex: number, offsiteId: string, artistUrlId: ObjectId, isDeleted: boolean, md5: string, title: string, description: string, scrapeDate: Date, creationDate: Date, width: number, height: number, fileSize: number, sourceUrl: string, directLinkOffsite: string, extension: string, betterVersion: BetterVersion, betterVersionNotDeleted: BetterVersion, sampleGenerated: boolean, e621IqdbHits: IqdbHit[] = [], deletedE621IqdbHits: number[] = [], additionalData: AdditionalData = {}) {
     this._id = _id
     this.id = id
     this.aggregatorIndex = aggregatorIndex
@@ -85,6 +86,7 @@ class Submission {
     this.betterVersionNotDeleted = betterVersionNotDeleted
     this.sampleGenerated = sampleGenerated
     this.e621IqdbHits = e621IqdbHits
+    this.deletedE621IqdbHits = deletedE621IqdbHits
     this.additionalData = additionalData
   }
 
@@ -92,6 +94,8 @@ class Submission {
     let hitsToInsert: IqdbHit[] = []
 
     for (let hit of hits) {
+      if (hit.md5 != this.md5 && this.deletedE621IqdbHits.includes(hit.id)) continue
+
       let existingHit = this.e621IqdbHits.find(h => h.id == hit.id)
       if (existingHit) continue
 
@@ -180,18 +184,22 @@ class Submission {
     let index = this.e621IqdbHits.findIndex(hit => hit.id == id)
     if (index == -1) return
 
-    this.e621IqdbHits.splice(index, 1)
+    if (this.e621IqdbHits[index].md5 == this.md5) throw { isMd5match: true }
 
-    await Globals.db.collection("submissions").updateOne({ _id: this._id }, { $set: { e621IqdbHits: this.e621IqdbHits, betterVersionNotDeleted: this.betterVersionNotDeleted } })
+    this.e621IqdbHits.splice(index, 1)
+    this.deletedE621IqdbHits.push(id)
+
+    await Globals.db.collection("submissions").updateOne({ _id: this._id }, { $set: { e621IqdbHits: this.e621IqdbHits, deletedE621IqdbHits: this.deletedE621IqdbHits, betterVersionNotDeleted: this.betterVersionNotDeleted } })
 
     await this.recalculateBetterVersionFlags()
   }
 
-  async purgeE621IqdbHits() {
+  async purgeE621IqdbHits(remember: boolean = true) {
+    if (remember) this.deletedE621IqdbHits.push(...(this.e621IqdbHits.map(e => e.id)))
     this.e621IqdbHits = []
     this.betterVersion = BetterVersion.UNKNOWN
     this.betterVersionNotDeleted = BetterVersion.UNKNOWN
-    await Globals.db.collection("submissions").updateOne({ _id: this._id }, { $set: { e621IqdbHits: [], betterVersion: this.betterVersion, betterVersionNotDeleted: this.betterVersionNotDeleted } })
+    await Globals.db.collection("submissions").updateOne({ _id: this._id }, { $set: { e621IqdbHits: [], deletedE621IqdbHits: this.deletedE621IqdbHits, betterVersion: this.betterVersion, betterVersionNotDeleted: this.betterVersionNotDeleted } })
   }
 
   async setSampleGenerated(sampleGenerated: boolean): Promise<void> {
@@ -368,10 +376,12 @@ class Submission {
       await account.removeReferenceToSubmission(this._id)
     }
 
+    await IqdbManager.removeId(this.id)
+
     await Globals.db.collection("submissions").deleteOne({ _id: this._id })
   }
 
-  async deleteSubmission(deletedBy: Account) {
+  async deleteSubmission(deletedBy: Account, deleteAll: boolean = true) {
     let additionalData = this.additionalData || {}
     additionalData.deletedBy = deletedBy._id
 
@@ -379,6 +389,14 @@ class Submission {
     this.isDeleted = true
 
     await Globals.db.collection("submissions").updateOne({ _id: this._id }, { $set: { isDeleted: true, additionalData } })
+
+    if (deleteAll) {
+      for (let submission of await Submission.findManyByMd5(this.md5)) {
+        if (submission.id != this.id) {
+          await submission.deleteSubmission(deletedBy, false)
+        }
+      }
+    }
   }
 
   async undeleteSubmission(undeletedBy: Account) {
@@ -393,7 +411,7 @@ class Submission {
 
   async withIqdbHit(forAccount: Account | null, hit: IqdbHit, andWebify = false): Promise<WithIqdbHit<Submission> | Partial<WithIqdbHit<WebifiedSubmission>>> {
     if (!andWebify) {
-      let clone: any = new Submission(this._id, this.id, this.aggregatorIndex, this.offsiteId, this.artistUrlId, this.isDeleted, this.md5, this.title, this.description, this.scrapeDate, this.creationDate, this.width, this.height, this.fileSize, this.sourceUrl, this.directLinkOffsite, this.extension, this.betterVersion, this.betterVersionNotDeleted, this.sampleGenerated, this.e621IqdbHits, this.additionalData)
+      let clone: any = new Submission(this._id, this.id, this.aggregatorIndex, this.offsiteId, this.artistUrlId, this.isDeleted, this.md5, this.title, this.description, this.scrapeDate, this.creationDate, this.width, this.height, this.fileSize, this.sourceUrl, this.directLinkOffsite, this.extension, this.betterVersion, this.betterVersionNotDeleted, this.sampleGenerated, this.e621IqdbHits, this.deletedE621IqdbHits, this.additionalData)
       clone.hit = hit
 
       return clone
@@ -469,7 +487,9 @@ class Submission {
     let _id = new ObjectId()
     let id = await Utils.getNextId("submissions")
 
-    let submission = new Submission(_id, id, artistUrl.aggregator ?? -1, offsiteId, artistUrlId, false, md5, title.trim(), description.trim(), new Date(), creationDate, width, height, fileSize, sourceUrl, directLinkOffsite, extension, BetterVersion.UNKNOWN, BetterVersion.UNKNOWN, false, [], additionalData)
+    let isDeleted = await Submission.getCountForQuery({ isDeleted: true, md5 }) > 0
+
+    let submission = new Submission(_id, id, artistUrl.aggregator ?? -1, offsiteId, artistUrlId, isDeleted, md5, title.trim(), description.trim(), new Date(), creationDate, width, height, fileSize, sourceUrl, directLinkOffsite, extension, BetterVersion.UNKNOWN, BetterVersion.UNKNOWN, false, [], [], additionalData)
     await Globals.db.collection("submissions").insertOne(submission)
 
     let generatedSample = await Utils.generateSample(submission)

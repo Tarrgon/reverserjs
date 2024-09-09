@@ -10,6 +10,7 @@ import { PuppetServer } from "../Puppet"
 import { sortedIndex } from "../MultiIPFetch"
 import { DeviantArtJobData } from "../aggregators/DeviantArtAggregator"
 import Job from "../Job"
+import { Document, WithId } from "mongodb"
 
 const API_BASE_URL = "https://www.deviantart.com/api/v1/oauth2"
 
@@ -32,159 +33,56 @@ class DeviantArtScraper {
   private static fetchingTokens: boolean = false
   private static accessToken: string = ""
 
-  static puppetServer: PuppetServer
-  static needCaptchaDone: boolean = false
+  static async getAccessToken(force: boolean = false): Promise<string> {
+    while (DeviantArtScraper.fetchingTokens) await Utils.wait(1000)
 
-  static forcingNewToken: boolean = false
-  static async forceNewToken() {
-    if (DeviantArtScraper.forcingNewToken) {
-      while (DeviantArtScraper.forcingNewToken) await Utils.wait(1000)
-      return
+    if (!force && new Date() < DeviantArtScraper.fetchNewTokensAt) {
+      return DeviantArtScraper.accessToken
     }
 
-    DeviantArtScraper.forcingNewToken = true
-    await DeviantArtScraper.getAccessToken(true, true)
-    DeviantArtScraper.forcingNewToken = false
-  }
+    let dbTokens = await Globals.db.collection("tokens").findOne({ id: "deviantart" }) as WithId<Document>
+    if (!force && dbTokens && new Date() < dbTokens.fetchNewTokensAt) {
+      DeviantArtScraper.accessToken = dbTokens.accessToken
 
-  static getAccessToken(bypassCheck: boolean = false, force: boolean = false): Promise<string> {
-    return new Promise(async resolve => resolve(""))
+      return DeviantArtScraper.accessToken
+    }
 
-    return new Promise(async (resolve) => {
-      let browser
-      try {
-        if (!force) {
-          if (new Date() < DeviantArtScraper.fetchNewTokensAt) {
-            return resolve(DeviantArtScraper.accessToken)
-          }
+    if (!dbTokens || !dbTokens.refreshToken) {
+      console.error("DEVIANT ART REFRESH TOKEN NOT FOUND, CANNOT FETCH DEVIANT ART POSTS")
+      return ""
+    }
 
-          if (!bypassCheck && DeviantArtScraper.fetchingTokens) {
-            while (DeviantArtScraper.fetchingTokens) await Utils.wait(1000)
-            return resolve(DeviantArtScraper.accessToken)
-          }
+    DeviantArtScraper.fetchingTokens = true
+    let refreshToken = dbTokens.refreshToken
+    let u = new URL("https://www.deviantart.com/oauth2/token")
+    u.searchParams.set("client_id", Globals.config.deviantArtAuth.clientId)
+    u.searchParams.set("client_secret", Globals.config.deviantArtAuth.clientSecret)
+    u.searchParams.set("grant_type", "refresh_token")
+    u.searchParams.set("refresh_token", refreshToken)
+    try {
+      let res = await fetch(u.toString())
+      let data = await res.json() as { access_token: string, expires_in: number, refresh_token: string }
+      DeviantArtScraper.fetchNewTokensAt = new Date(Date.now() + (data.expires_in * 1000) - 1000)
+      DeviantArtScraper.accessToken = data.access_token
 
-          if (DeviantArtScraper.forcingNewToken) {
-            while (DeviantArtScraper.forcingNewToken) await Utils.wait(1000)
-            return resolve(DeviantArtScraper.accessToken)
-          }
-        }
+      console.log("GOT DEVIANT ART ACCESS TOKEN!! YAY")
 
-        DeviantArtScraper.fetchingTokens = true
+      setTimeout(() => {
+        DeviantArtScraper.getAccessToken(true)
+      }, (data.expires_in * 1000) - 1500)
 
-        DeviantArtScraper.accessToken = ""
+      DeviantArtScraper.fetchingTokens = false
 
-        puppeteer.use(StealthPlugin())
+      await Globals.db.collection("tokens").updateOne({ id: "deviantart" }, { $set: { accessToken: DeviantArtScraper.accessToken, fetchNewTokensAt: DeviantArtScraper.fetchNewTokensAt, refreshToken: data.refresh_token } })
+      return DeviantArtScraper.accessToken
+    } catch (e) {
+      console.error("ERROR WHILE REFRESHING DEVIANT ART TOKEN")
+      console.error(e)
+    }
 
-        browser = await puppeteer.launch({
-          args: ["--no-sandbox", "--disable-setuid-sandbox"]
-        })
+    DeviantArtScraper.fetchingTokens = false
 
-        let page = await browser.newPage()
-
-        let url = new URL("https://www.deviantart.com/oauth2/authorize?")
-        url.searchParams.set("response_type", "code")
-        url.searchParams.set("client_id", Globals.config.deviantArtAuth.clientId)
-        url.searchParams.set("redirect_uri", "http://localhost")
-        url.searchParams.set("scope", "browse")
-
-        await page.goto(url.toString())
-
-        let button = await page.waitForSelector("::-p-xpath(//*[text()='Log In'])")
-        await Utils.wait(Math.random() * 2000)
-        await button?.click()
-
-        let usernameInput = await page.waitForSelector("#username", { timeout: 15000 })
-        await Utils.wait(Math.random() * 2000)
-        await usernameInput?.type(Globals.config.deviantArtAuth.username, { delay: 50 })
-
-        button = await page.waitForSelector("#loginbutton")
-        await Utils.wait(Math.random() * 2000)
-        await button?.click()
-
-        let passwordInput = await page.waitForSelector("#password")
-        await Utils.wait(Math.random() * 2000)
-        await passwordInput?.type(Globals.config.deviantArtAuth.password, { delay: 50 })
-
-        button = await page.waitForSelector("#loginbutton")
-
-        let done = false
-
-        page.on("request", async (request) => {
-          if (done) return
-          if (request.url().startsWith("http://localhost")) {
-            done = true
-            let code = new URL(request.url()).searchParams.get("code")
-            let u = new URL("https://www.deviantart.com/oauth2/token")
-            u.searchParams.set("client_id", Globals.config.deviantArtAuth.clientId)
-            u.searchParams.set("client_secret", Globals.config.deviantArtAuth.clientSecret)
-            u.searchParams.set("grant_type", "authorization_code")
-            u.searchParams.set("code", code as string)
-            u.searchParams.set("redirect_uri", "http://localhost")
-            try {
-              let res = await fetch(u.toString())
-              let data = await res.json() as any
-
-              if (data.access_token) {
-                console.log("GOT DEVIANT ART ACCESS TOKEN")
-                DeviantArtScraper.accessToken = data.access_token
-                return resolve(DeviantArtScraper.accessToken)
-              } else {
-                console.error("ACCESS TOKEN NOT PRESENT DEVIANTART IN REPONSE!")
-                console.error(data)
-                return resolve(await DeviantArtScraper.getAccessToken(true))
-              }
-            } catch (e) {
-              console.error("ERROR WITH DEVIANT ART ACCESS TOKEN FETCH!")
-              console.error(e)
-              return resolve(await DeviantArtScraper.getAccessToken(true))
-            }
-          }
-        })
-
-        await Utils.wait(Math.random() * 2000)
-        await button?.click()
-
-        await Utils.wait(3000)
-
-        if (!done) {
-          // DeviantArtScraper.puppetServer = new PuppetServer("deviantart", page)
-          // DeviantArtScraper.needCaptchaDone = true
-          let timeWaited = 0
-          while (!done) {
-            await Utils.wait(1000)
-            timeWaited += 1000
-            if (timeWaited > 10000) {
-              break
-            }
-          }
-
-          // DeviantArtScraper.needCaptchaDone = false
-          // await DeviantArtScraper.puppetServer.destroy()
-        }
-
-        if (!done) {
-          await browser.close()
-          console.error("RETRYING DEVIANT ART AUTH, TIMEOUT")
-          return resolve(await DeviantArtScraper.getAccessToken(true))
-        }
-        DeviantArtScraper.fetchNewTokensAt = new Date(Date.now() + 3300000)
-
-        setTimeout(() => {
-          DeviantArtScraper.getAccessToken()
-        }, 3300000)
-
-        DeviantArtScraper.fetchingTokens = false
-
-        await Utils.wait(1000)
-        await browser.close()
-      } catch (e) {
-        await browser.close()
-        // await DeviantArtScraper.puppetServer?.destroy()
-        console.error("RETRYING DEVIANT ART AUTH")
-        console.error(e)
-        return resolve(await DeviantArtScraper.getAccessToken(true))
-      }
-    })
+    return ""
   }
 
   private static currentWait: number = 0
@@ -226,17 +124,11 @@ class DeviantArtScraper {
   }
 
   private static async makeRequest(path, params: Record<string, any> = {}, priority: number, onResolve: (data: any) => void, onReject: (error: any) => void): Promise<void> {
+    // console.log(`Making request to /${path} current wait: ${DeviantArtScraper.currentWait}`)
     return new Promise(async (resolve, reject) => {
       let url = new URL(`${API_BASE_URL}/${path}`)
 
       let accessToken = await DeviantArtScraper.getAccessToken()
-
-      while (accessToken == "") {
-        console.error("ACCESS TOKEN IS EMPTY")
-        await DeviantArtScraper.forceNewToken()
-        accessToken = await DeviantArtScraper.getAccessToken()
-      }
-
       url.searchParams.set("access_token", accessToken)
 
       for (let [key, value] of Object.entries(params)) {
@@ -288,8 +180,6 @@ class DeviantArtScraper {
   }
 
   static async getDownloadLink(id: string, priority: number = 500): Promise<string> {
-    return ""
-
     let json = await new Promise((resolve, reject) => {
       DeviantArtScraper.queueRequest(`deviation/download/${id}`, {}, priority, resolve, reject)
     }) as any
@@ -298,8 +188,6 @@ class DeviantArtScraper {
   }
 
   static async getApiIdentifier(urlIdentifier: string): Promise<string | null> {
-    return null
-
     try {
       let json = await new Promise((resolve, reject) => {
         DeviantArtScraper.queueRequest(`user/profile/${urlIdentifier}`, {}, 1000, resolve, reject)
@@ -315,8 +203,6 @@ class DeviantArtScraper {
   }
 
   static async* getMedia(artistUrl: ArtistURL, job: Job<DeviantArtJobData>): AsyncGenerator<Deviation, void> {
-    return
-
     let offset = job.jobData.startingOffset
 
     let params = {

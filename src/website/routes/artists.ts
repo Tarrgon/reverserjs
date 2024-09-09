@@ -178,6 +178,10 @@ router.patch("/:id/edit", async (req: Request, res: Response) => {
     }
   }
 
+  if (req.body.purgeBefore) {
+    await artist.setPurgeBefore(new Date(req.body.purgeBefore))
+  }
+
   return res.sendStatus(200)
 })
 

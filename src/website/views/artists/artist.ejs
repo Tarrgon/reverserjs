@@ -25,6 +25,29 @@
       </div>
     </div>
     <br />
+    <div class="level ml-3">
+      <div class="level-left">
+        <div class="level-item">
+          <h2 class="is-size-2 has-text-light mr-1">Additional Settings</h2>
+
+          <i id="open-settings-button" class="fa-solid fa-angle-down has-text-info" title="Open additional settings" style="cursor: pointer;" onclick="openSettings()"></i>
+          <i id="close-settings-button" class="hidden fa-solid fa-angle-up has-text-info hidden" title="Close additional settings" style="cursor: pointer;" onclick="closeSettings(<%- artist.id %>)"></i>
+        </div>
+      </div>
+    </div>
+    <container id="collapsible-settings" class="hidden">
+      <div class="level ml-3 artist-link">
+        <div class="level-left">
+          <div class="level-item">
+            <h3 class="is-size-3 has-text-light mr-1">Purge Before</h3>
+          </div>
+        </div>
+      </div>
+      <p class="has-text-grey-light is-size-6 ml-3">This will permanently delete all submissions before the provided date and will never fetch anything before that date for new URLs added. This cannot be undone.</p>
+      <input class="ml-3" type="date" onkeydown="return false" onchange="purgeBeforeChanged(event, <%- artist.id %>)" <%- artist.purgeBefore ? `value=${artist.purgeBefore.toISOString().split('T')[0]}` : "" %> />
+      <br />
+      <br />
+    </container>
     <div class="level ml-3 artist-link mb-0">
       <div class="level-left">
         <div class="level-item">

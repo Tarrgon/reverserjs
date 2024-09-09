@@ -177,7 +177,7 @@ class Account {
     let count = await Submission.getCountForQuery(finalQuery)
     let totalPages = Math.ceil(count / query.limit)
 
-    if (query.order == "newestFirst") {
+    if (query.order == "oldestFirst") {
       let start = query.limit * (query.page - 1)
       if (start >= this.submissionsBacklog.length) return { submissions: [], totalPages }
 
