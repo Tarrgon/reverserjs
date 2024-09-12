@@ -5,7 +5,7 @@ import Utils from "./Utils"
 import Aggregator from "../interfaces/Aggregator"
 import Submission from "./Submission"
 import Artist from "./Artist"
-import Job from "./Job"
+import Job, { JobPriority } from "./Job"
 
 export const enum ArtistURLStatus {
   DONE = 0,
@@ -125,6 +125,14 @@ class ArtistURL {
     this.status = ArtistURLStatus.QUEUED
     await Globals.db.collection("artistUrls").updateOne({ _id: this._id }, { $set: { status: ArtistURLStatus.QUEUED } })
     await Globals.aggregationManager.addToQueue(this)
+  }
+
+  async queueE621IqdbUpdate(): Promise<void> {
+    for (let submission of await this.getSubmissions()) {
+      submission.purgeE621IqdbHits(false).then(() => {
+        submission.queueE621IqdbCheck(JobPriority.LOW)
+      })
+    }
   }
 
   async fetchAll(job: Job<any>): Promise<void> {

@@ -27,6 +27,7 @@ export type Config = {
   blueSkyAuth: SiteAuth
   newgroundsAuth: SiteAuth
   artFightAuth: SiteAuth
+  toyhouseAuth: SiteAuth
   cohostCookie: string
   weasylApiKey: string
   internal: { ssl: { privateKeyLocation: string, certificateLocation: string, chainLocation: string } }

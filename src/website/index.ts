@@ -35,6 +35,7 @@ import Artist from "../modules/Artist"
 import CohostScraper from "../modules/customScrapers/CohostScraper"
 import History from "../modules/History"
 import ArtFightScraper from "../modules/customScrapers/ArtFightScraper"
+import ToyHouseScraper from "../modules/customScrapers/ToyHouseScraper"
 
 const serverEvents = new SSE()
 
@@ -104,6 +105,7 @@ module.exports = async () => {
     DeviantArtScraper.getAccessToken()
     NewgroundsScraper.getCookie()
     CohostScraper.keepAlive()
+    // ToyHouseScraper.getToken()
     // ArtFightScraper.getToken()
 
     History.startRoutine()

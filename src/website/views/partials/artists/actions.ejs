@@ -1,9 +1,5 @@
 <script>
   <% if (active == "Listing") { %>
-  async function afterQueueScrape(event, id) {
-
-  }
-
   async function afterWatch(event, id) {
     let watchButton = document.getElementById(`watch-${id}`)
     let unwatchButton = document.getElementById(`unwatch-${id}`)
@@ -40,10 +36,6 @@
     }
   }
   <% } else if (active == "Watched") { %>
-  async function afterQueueScrape(event, id) {
-
-  }
-
   async function afterWatch(event, id) {
 
   }
@@ -76,7 +68,20 @@
     })
 
     if (!res.ok) alert("Error queuing scrape.")
-    else afterQueueScrape(event, id)
+  }
+
+  async function queueE621IqdbUpdate(event, id) {
+    let res = await fetch("/artists/queue/iqdb", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id
+      })
+    })
+
+    if (!res.ok) alert("Error queuing iqdb update.")
   }
 
   async function watch(event, id) {
@@ -130,6 +135,24 @@
 
     if (!res.ok) alert("Error queuing scrape.")
     else afterQueueSelected(event, ids)
+  }
+
+  async function queueE621IqdbUpdateSelected(event) {
+    let ids = getSelected()
+
+    if (ids.length == 0) return
+
+    let res = await fetch("/artists/queue/iqdb/many", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ids
+      })
+    })
+
+    if (!res.ok) alert("Error queuing iqdb update.")
   }
 
   async function watchSelected(event) {

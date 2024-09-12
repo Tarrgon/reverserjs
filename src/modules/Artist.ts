@@ -234,8 +234,14 @@ class Artist {
   }
 
   async queueScraping() {
-    for (let url of (await this.getArtistUrls() as ArtistURL[])) {
+    for (let url of await this.getArtistUrls()) {
       await url.queue()
+    }
+  }
+
+  async queueE621IqdbUpdate() {
+    for (let url of await this.getArtistUrls()) {
+      await url.queueE621IqdbUpdate()
     }
   }
 

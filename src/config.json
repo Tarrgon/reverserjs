@@ -137,6 +137,15 @@
       "allowedIPs": [
         "0.0.0.0"
       ]
+    },
+    {
+      "hostName": "toyhou.se",
+      "aliases": [
+        "www.toyhou.se"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
     }
   ],
   "imageDownloadIps": ["0.0.0.0"],
@@ -170,6 +179,10 @@
     "password": ""
   },
   "artFightAuth": {
+    "username": "",
+    "password": ""
+  },
+  "toyhouseAuth": {
     "username": "",
     "password": ""
   },

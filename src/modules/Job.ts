@@ -9,6 +9,7 @@ export const enum JobStatus {
 }
 
 export const enum JobPriority {
+  LOW = -500,
   NORMAL = 0,
   IMMEDIATE = 10000
 }

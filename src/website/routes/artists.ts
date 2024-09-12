@@ -141,6 +141,22 @@ router.post("/queue/many", async (req: Request, res: Response) => {
   return res.sendStatus(200)
 })
 
+router.post("/queue/iqdb", async (req: Request, res: Response) => {
+  let artist = await Artist.findById(req.body.id)
+
+  if (!artist) return res.sendStatus(404)
+
+  await artist.queueE621IqdbUpdate()
+  return res.sendStatus(200)
+})
+
+router.post("/queue/iqdb/many", async (req: Request, res: Response) => {
+  let artists = await Artist.findManyById(req.body.ids)
+
+  for (let artist of artists) await artist.queueE621IqdbUpdate()
+  return res.sendStatus(200)
+})
+
 router.patch("/:id/edit", async (req: Request, res: Response) => {
   let artist = await Artist.findById(parseInt(req.params.id))
 
