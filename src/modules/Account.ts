@@ -152,14 +152,15 @@ class Account {
   }
 
   async getAllWatchedSubmissions(query: SubmissionSearchQuery, andWebify: boolean = false): Promise<{ submissions: (Submission | WebifiedSubmission)[], totalPages: number }> {
-    let q = Utils.buildSubmissionQuery(this, query, {
+    let { filter, ignoredIds } = Utils.buildSubmissionQuery(this, query, {
       artistUrlId: { $in: (await this.getArtists() as Artist[]).flatMap(a => a.urls) },
       isDeleted: false
     })
     let submissions: (Submission | WebifiedSubmission)[] = []
 
-    for await (let submission of Submission.findByQuery(q).sort(query.order == "newestFirst" ? { creationDate: -1 } : { creationDate: 1 }).skip((query.page - 1) * query.limit).limit(query.limit)) {
+    for await (let submission of Submission.findByQuery(filter).sort(query.order == "newestFirst" ? { creationDate: -1 } : { creationDate: 1 }).skip((query.page - 1) * query.limit).limit(query.limit)) {
       let s = Submission.fromDoc(submission)
+      if (ignoredIds.includes(s._id)) continue
       if (andWebify) {
         submissions.push(await s.webify(this))
       } else {
@@ -167,60 +168,66 @@ class Account {
       }
     }
 
-    let totalPages = Math.ceil(await Submission.getCountForQuery(q) / query.limit)
+    let totalPages = Math.ceil(await Submission.getCountForQuery(filter, ignoredIds) / query.limit)
     return { submissions, totalPages }
   }
 
   async getBackloggedSubmissions(query: SubmissionSearchQuery, andWebify: boolean = false): Promise<{ submissions: (Submission | WebifiedSubmission)[], totalPages: number }> {
-    let q = Utils.buildSubmissionQuery(this, query)
-    let finalQuery = Utils.mergeObjects({ _id: { $in: this.submissionsBacklog } }, q)
-    let count = await Submission.getCountForQuery(finalQuery)
+    let { filter, ignoredIds } = Utils.buildSubmissionQuery(this, query)
+    let finalQuery = Utils.mergeObjects({ _id: { $in: this.submissionsBacklog } }, filter)
+    let count = await Submission.getCountForQuery(finalQuery, ignoredIds)
     let totalPages = Math.ceil(count / query.limit)
 
     if (query.order == "oldestFirst") {
       let start = query.limit * (query.page - 1)
       if (start >= this.submissionsBacklog.length) return { submissions: [], totalPages }
 
-      let submissions = await Submission.findManyByObjectId(this.submissionsBacklog, q)
+      let submissions = await Submission.findManyByObjectId(this.submissionsBacklog, filter, ignoredIds)
 
-      let s: (Submission | WebifiedSubmission)[] = []
+      let s: (Submission | Promise<WebifiedSubmission>)[] = []
 
+      let trueSize = 0
       for (let i = start; i < this.submissionsBacklog.length; i++) {
         let sub = submissions.find(s => s._id.equals(this.submissionsBacklog[i]))
         if (sub) {
           if (andWebify) {
-            s.push(await sub.webify(this))
+            s.push(sub.webify(this))
           } else {
             s.push(sub)
           }
+
+          trueSize++
         }
 
-        if (s.length >= query.limit) break
+        if (trueSize >= query.limit) break
       }
 
-      return { submissions: s, totalPages }
+      return { submissions: await Promise.all(s), totalPages }
     } else {
       let start = (this.submissionsBacklog.length - 1) - (query.limit * (query.page - 1))
       if (start < 0) return { submissions: [], totalPages }
 
-      let submissions = await Submission.findManyByObjectId(this.submissionsBacklog, q)
+      let submissions = await Submission.findManyByObjectId(this.submissionsBacklog, filter, ignoredIds)
 
-      let s: (Submission | WebifiedSubmission)[] = []
+      let s: (Submission | Promise<WebifiedSubmission>)[] = []
 
+      let trueSize = 0
       for (let i = start; i >= 0; i--) {
         let sub = submissions.find(s => s._id.equals(this.submissionsBacklog[i]))
         if (sub) {
           if (andWebify) {
-            s.push(await sub.webify(this))
+            s.push(sub.webify(this))
           } else {
             s.push(sub)
           }
+
+          trueSize++
         }
 
-        if (s.length >= query.limit) break
+        if (trueSize >= query.limit) break
       }
 
-      return { submissions: s, totalPages }
+      return { submissions: await Promise.all(s), totalPages }
     }
   }
 

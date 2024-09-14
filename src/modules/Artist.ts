@@ -246,24 +246,25 @@ class Artist {
   }
 
   async getAllSubmissions(from: Account, query: SubmissionSearchQuery, andWebify: boolean = false): Promise<{ submissions: (Submission | WebifiedSubmission)[], totalPages: number }> {
-    let q = Utils.buildSubmissionQuery(from, query, {
+    let { filter, ignoredIds } = Utils.buildSubmissionQuery(from, query, {
       artistUrlId: { $in: this.urls },
       isDeleted: false
     })
 
-    let submissions: (Submission | WebifiedSubmission)[] = []
+    let submissions: (Submission | Promise<WebifiedSubmission>)[] = []
 
-    for await (let submission of Submission.findByQuery(q).sort(query.order == "newestFirst" ? { creationDate: -1 } : { creationDate: 1 }).skip((query.page - 1) * query.limit).limit(query.limit)) {
+    for await (let submission of Submission.findByQuery(filter).sort(query.order == "newestFirst" ? { creationDate: -1 } : { creationDate: 1 }).skip((query.page - 1) * query.limit).limit(query.limit)) {
       let s = Submission.fromDoc(submission)
+      if (ignoredIds.includes(s._id)) continue
       if (andWebify) {
-        submissions.push(await s.webify(from))
+        submissions.push(s.webify(from))
       } else {
         submissions.push(s)
       }
     }
 
-    let totalPages = Math.ceil(await Submission.getCountForQuery(q) / query.limit)
-    return { submissions, totalPages }
+    let totalPages = Math.ceil(await Submission.getCountForQuery(filter, ignoredIds) / query.limit)
+    return { submissions: await Promise.all(submissions), totalPages }
   }
 
   static fromDoc(doc): Artist {
