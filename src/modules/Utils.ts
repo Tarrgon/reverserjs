@@ -3,7 +3,7 @@ import fs from "fs"
 import path from "path"
 import Globals from "./Globals"
 import ImageData from "../interfaces/ImageData"
-import { Document, Filter, ObjectId, WithId } from "mongodb"
+import { Document, Filter, WithId } from "mongodb"
 import Job from "./Job"
 import sharp from "sharp"
 import { exec, spawn, spawnSync } from "child_process"
@@ -23,7 +23,6 @@ const WebmParser = require("./WebmParser")
 const THUMBNAIL_SIZE = 300
 
 export const VIDEO_EXTENSIONS = ["mp4", "m4p", "m4v", "webm", "mk4", "flv", "vob", "ogg", "ogv", "avi", "mov", "qt", "amv", "mpg", "mp2", "mpeg", "mpe", "mpv", "m2v", "m3u8"]
-export const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "jfif", "svg", "apng", "avif", "webp"]
 export const MIME_TYPE_TO_IGNORE = ["application/x-shockwave-flash", "video/x-flv", "application/vnd.adobe.flash.movie", "image/vnd.adobe.photoshop", "application/pdf", "application/zip", "application/vnd.rar", "audio/mpeg"]
 export const E6_ALLOWED_EXTENSIONS = ["webm", "png", "jpg", "jpeg", "gif"]
 
@@ -470,9 +469,8 @@ class Utils {
     return data
   }
 
-  static buildSubmissionQuery(account: Account, query: SubmissionSearchQuery, defaultQuery: Filter<Document> = { isDeleted: false }): { filter: Filter<Document>, ignoredIds: ObjectId[] } {
+  static buildSubmissionQuery(account: Account, query: SubmissionSearchQuery, defaultQuery: Filter<Document> = { isDeleted: false }): Filter<Document> {
     let q: Filter<Document> = defaultQuery
-    let ignoredIds: ObjectId[] = []
 
     if (query.status) {
       if (query.status.includes("notUploaded")) {
@@ -535,7 +533,7 @@ class Utils {
           break
 
         case "picturesOnly":
-          q.extension = { $in: IMAGE_EXTENSIONS }
+          q.extension = { $nin: VIDEO_EXTENSIONS }
           break
       }
     }
@@ -548,7 +546,7 @@ class Utils {
       if (query.inBacklog) {
         q._id = { $in: account.submissionsBacklog }
       } else {
-        ignoredIds.push(...account.submissionsBacklog)
+        q._id = { $nin: account.submissionsBacklog }
       }
     }
 
@@ -568,7 +566,14 @@ class Utils {
           break
       }
     } else {
-      ignoredIds.push(...account.ignoredSubmissions)
+      if (q._id && q._id["$nin"]) q._id["$nin"].push(...account.ignoredSubmissions)
+      else {
+        if (q._id) {
+          q._id["$nin"] = account.ignoredSubmissions
+        } else {
+          q._id = { $nin: account.ignoredSubmissions }
+        }
+      }
     }
 
     if (query.deleted) {
@@ -595,7 +600,7 @@ class Utils {
       q.description = { $regex: `.*${Utils.escapeRegexCharacters(query.descriptionIncludes)}.*`, $options: "i" }
     }
 
-    return { filter: q, ignoredIds }
+    return q
   }
 
   static async processArtistSearchQuery(query: any, defaults: Partial<ArtistSearchQuery> = {}): Promise<ArtistSearchQuery> {

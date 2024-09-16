@@ -1,7 +1,7 @@
 import Globals from "./Globals"
 import IqdbHit from "../interfaces/IqdbHit"
 import E621IqdbChecker from "./E621IqdbChecker"
-import { ObjectId, WithId, Document, FindCursor, Filter } from "mongodb"
+import { ObjectId, WithId, Document, FindCursor } from "mongodb"
 import ArtistURL from "./ArtistURL"
 import Utils, { E6_ALLOWED_EXTENSIONS, VIDEO_EXTENSIONS } from "./Utils"
 import path from "path"
@@ -558,12 +558,12 @@ class Submission {
     return Submission.fromDoc(doc)
   }
 
-  static findByQuery(query: Filter<Document>): FindCursor<Document> {
+  static findByQuery(query: any): FindCursor<Document> {
     return Globals.db.collection("submissions").find(query)
   }
 
-  static async findManyByObjectId(ids: ObjectId[], additionalQuery: any = {}, ignoredIds: ObjectId[] = []): Promise<Submission[]> {
-    return (await Globals.db.collection("submissions").find({ _id: { $in: ids }, ...additionalQuery }).toArray()).map(s => Submission.fromDoc(s)).filter(s => !ignoredIds.includes(s._id))
+  static async findManyByObjectId(ids: ObjectId[], additionalQuery: any = {}): Promise<Submission[]> {
+    return (await Globals.db.collection("submissions").find({ _id: { $in: ids }, ...additionalQuery }).toArray()).map(s => Submission.fromDoc(s))
   }
 
   static async findManyById(forAccount: Account | null, ids: number[], limit: number, page: number, andWebify: boolean = false): Promise<Submission[] | WebifiedSubmission[]> {
@@ -581,22 +581,8 @@ class Submission {
     }
   }
 
-  static async getCountForQuery(query: Filter<Document>, ignoredIds: ObjectId[] = []): Promise<number> {
-    let now = Date.now()
-    let q = { ...query } as any
-    if (ignoredIds.length > 0) {
-      if (q._id && q._id["$nin"]) q._id["$nin"].push(...ignoredIds)
-      else {
-        if (q._id) {
-          q._id["$nin"] = ignoredIds
-        } else {
-          q._id = { $nin: ignoredIds }
-        }
-      }
-    }
-
-    let count = await Globals.db.collection("submissions").countDocuments(q)
-    console.log(`Took ${Date.now() - now}ms to count`)
+  static async getCountForQuery(query: any): Promise<number> {
+    let count = await Globals.db.collection("submissions").countDocuments(query)
     return count
   }
 
@@ -608,23 +594,22 @@ class Submission {
   }
 
   static async getAllSubmissions(forAccount: Account, query: SubmissionSearchQuery, andWebify: boolean = false): Promise<{ submissions: (Submission | WebifiedSubmission)[], totalPages: number }> {
-    let { filter, ignoredIds } = Utils.buildSubmissionQuery(forAccount, query, {
+    let q = Utils.buildSubmissionQuery(forAccount, query, {
       isDeleted: false
     })
-    let submissions: (Submission | Promise<WebifiedSubmission>)[] = []
+    let submissions: (Submission | WebifiedSubmission)[] = []
 
-    for await (let submission of Submission.findByQuery(filter).sort(query.order == "newestFirst" ? { creationDate: -1 } : { creationDate: 1 }).skip((query.page - 1) * query.limit).limit(query.limit)) {
+    for await (let submission of Submission.findByQuery(q).sort(query.order == "newestFirst" ? { creationDate: -1 } : { creationDate: 1 }).skip((query.page - 1) * query.limit).limit(query.limit)) {
       let s = Submission.fromDoc(submission)
-      if (ignoredIds.includes(s._id)) continue
       if (andWebify) {
-        submissions.push(s.webify(forAccount))
+        submissions.push(await s.webify(forAccount))
       } else {
         submissions.push(s)
       }
     }
 
-    let totalPages = Math.ceil(await Submission.getCountForQuery(filter, ignoredIds) / query.limit)
-    return { submissions: await Promise.all(submissions), totalPages }
+    let totalPages = Math.ceil(await Submission.getCountForQuery(q) / query.limit)
+    return { submissions, totalPages }
   }
 }
 
