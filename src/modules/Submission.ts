@@ -582,6 +582,7 @@ class Submission {
   }
 
   static async getCountForQuery(query: Filter<Document>, ignoredIds: ObjectId[] = []): Promise<number> {
+    let now = Date.now()
     let q = { ...query } as any
     if (ignoredIds.length > 0) {
       if (q._id && q._id["$nin"]) q._id["$nin"].push(...ignoredIds)
@@ -595,6 +596,7 @@ class Submission {
     }
 
     let count = await Globals.db.collection("submissions").countDocuments(q)
+    console.log(`Took ${Date.now() - now}ms to count`)
     return count
   }
 
