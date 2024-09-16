@@ -160,7 +160,7 @@ class Account {
 
     for await (let submission of Submission.findByQuery(filter).sort(query.order == "newestFirst" ? { creationDate: -1 } : { creationDate: 1 }).skip((query.page - 1) * query.limit).limit(query.limit)) {
       let s = Submission.fromDoc(submission)
-      if (ignoredIds.includes(s._id)) continue
+      if (ignoredIds.find(i => i.equals(s._id))) continue
       if (andWebify) {
         submissions.push(await s.webify(this))
       } else {

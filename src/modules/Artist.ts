@@ -25,17 +25,19 @@ class Artist {
   purgeBefore?: Date | null
   id: number
   name: string
+  isCommissioner: boolean
   urls: ObjectId[]
   // submissions: ObjectId[]
   notes: ArtistNote[]
 
-  constructor(_id: ObjectId, createdBy: ObjectId, createdAt: Date, purgeBefore: Date | null, id: number, name: string, urls: ObjectId[] = [], /*submissions: ObjectId[] = [],*/ notes: ArtistNote[] = []) {
+  constructor(_id: ObjectId, createdBy: ObjectId, createdAt: Date, purgeBefore: Date | null, id: number, name: string, isCommissioner: boolean = false, urls: ObjectId[] = [], /*submissions: ObjectId[] = [],*/ notes: ArtistNote[] = []) {
     this._id = _id
     this.createdBy = createdBy
     this.createdAt = createdAt
     this.purgeBefore = purgeBefore
     this.id = id
     this.name = name
+    this.isCommissioner = isCommissioner
     this.urls = urls
     // this.submissions = submissions
     this.notes = notes
@@ -255,7 +257,7 @@ class Artist {
 
     for await (let submission of Submission.findByQuery(filter).sort(query.order == "newestFirst" ? { creationDate: -1 } : { creationDate: 1 }).skip((query.page - 1) * query.limit).limit(query.limit)) {
       let s = Submission.fromDoc(submission)
-      if (ignoredIds.includes(s._id)) continue
+      if (ignoredIds.find(i => i.equals(s._id))) continue
       if (andWebify) {
         submissions.push(s.webify(from))
       } else {
@@ -344,7 +346,7 @@ class Artist {
 
   private static BEING_ADDED: Record<string, Promise<Artist>> = {}
 
-  static async create(createdBy: Account, name: string, urls: string[], notes: string = "", purgeBefore: Date | null = null): Promise<Artist> {
+  static async create(createdBy: Account, name: string, isCommissioner: boolean = false, urls: string[], notes: string = "", purgeBefore: Date | null = null): Promise<Artist> {
     let existing = await Artist.findByName(name.trim())
 
     urls = Array.from(new Set(urls.map(u => Utils.normalizeUrl(u))))
@@ -372,7 +374,7 @@ class Artist {
         artistUrls.push(u)
       }
 
-      let artist = new Artist(_id, createdBy._id, new Date(), purgeBefore, id, name.trim(), artistUrls.map(a => a._id), /*[],*/ notes.length > 0 ? [{ noter: createdBy._id, content: notes }] : [])
+      let artist = new Artist(_id, createdBy._id, new Date(), purgeBefore, id, name.trim(), isCommissioner, artistUrls.map(a => a._id), /*[],*/ notes.length > 0 ? [{ noter: createdBy._id, content: notes }] : [])
 
       await Globals.db.collection("artists").insertOne(artist)
 

@@ -15,7 +15,18 @@
     <div class="level ml-3 artist-link">
       <div class="level-left">
         <div class="level-item">
-          <h1 id="artist-name" class="is-size-1 has-text-light mr-1"><%- artist.name %></h1>
+          <h1 id="artist-name" class="is-size-1 has-text-light mr-1">
+            <% if (!artist.isCommissioner) { %>
+            <span class="is-small" title="Is artist">
+              <i class="fa fa-paintbrush"></i>
+            </span>
+            <% } else { %>
+            <span class="is-small" title="Is commissioner">
+              <i class="fa fa-user"></i>
+            </span>
+            <% } %>
+            <%- artist.name %>
+          </h1>
 
           <i id="edit-name-button" class="fa-solid fa-pen-to-square has-text-info" title="Edit name" style="cursor: pointer;" onclick="beginArtistNameEdit()"></i>
           <i id="save-name-button" class="fa-solid fa-floppy-disk has-text-success hidden mr-1" title="Save edit" style="cursor: pointer;" onclick="saveArtistNameEdit(<%- artist.id %>)"></i>
@@ -66,7 +77,11 @@
             </a>
           </span>
           <span class="mr-1">
+            <% if (url.aggregator == -1 || !aggregators[url.aggregator]) { %>
+            <a href="<%- url.url %>" class="is-size-5"><%- url.url %></a>
+            <% } else { %>
             <a href="<%- url.url %>" class="is-size-5"><%- url.urlIdentifier || artist.name %></a>
+            <% } %>
           </span>
           <span>
             <% if (url.aggregator == -1 || !aggregators[url.aggregator] || !aggregators[url.aggregator].canFetch) { %>

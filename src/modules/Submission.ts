@@ -251,7 +251,11 @@ class Submission {
 
     let artist = await this.getArtist()
 
-    let tags = [artist.name?.replaceAll(" ", "_")?.toLowerCase() ?? ""]
+    let tags: string[] = []
+
+    if (!artist.isCommissioner && artist.name) {
+      tags.push(artist.name)
+    }
 
     let sources: Set<string> = new Set([this.sourceUrl])
 
@@ -563,7 +567,7 @@ class Submission {
   }
 
   static async findManyByObjectId(ids: ObjectId[], additionalQuery: any = {}, ignoredIds: ObjectId[] = []): Promise<Submission[]> {
-    return (await Globals.db.collection("submissions").find({ _id: { $in: ids }, ...additionalQuery }).toArray()).map(s => Submission.fromDoc(s)).filter(s => !ignoredIds.includes(s._id))
+    return (await Globals.db.collection("submissions").find({ _id: { $in: ids }, ...additionalQuery }).toArray()).map(s => Submission.fromDoc(s)).filter(s => !ignoredIds.find(i => i.equals(s._id)))
   }
 
   static async findManyById(forAccount: Account | null, ids: number[], limit: number, page: number, andWebify: boolean = false): Promise<Submission[] | WebifiedSubmission[]> {
@@ -613,7 +617,7 @@ class Submission {
 
     for await (let submission of Submission.findByQuery(filter).sort(query.order == "newestFirst" ? { creationDate: -1 } : { creationDate: 1 }).skip((query.page - 1) * query.limit).limit(query.limit)) {
       let s = Submission.fromDoc(submission)
-      if (ignoredIds.includes(s._id)) continue
+      if (ignoredIds.find(i => i.equals(s._id))) continue
       if (andWebify) {
         submissions.push(s.webify(forAccount))
       } else {
