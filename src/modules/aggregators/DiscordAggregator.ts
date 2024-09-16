@@ -102,7 +102,7 @@ class DiscordAggregator implements Aggregator {
           if (artistUrl) return this.discordBot.send({ id: message.id, data: { id: artistUrl.id } })
 
           let artist = await Artist.findByName(addArtistMessage.artistName)
-          if (!artist) artist = await Artist.create(fromAccount, addArtistMessage.artistName, false, [url])
+          if (!artist) artist = await Artist.create(fromAccount, addArtistMessage.artistName, [url])
           else {
             await artist.addArtistUrl(fromAccount, url)
           }

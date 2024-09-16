@@ -19,19 +19,9 @@
     <tr id="artist-<%- artist.id %>">
       <td><input data-id="<%- artist.id %>" type="checkbox" onchange="selectArtist(event)" /></td>
       <th><a href="/artists/<%- artist.id %>"><%- artist.id %></a></th>
-      <td>
-        <% if (!artist.isCommissioner) { %>
-        <span class="is-small" title="Is artist">
-          <i class="fa fa-paintbrush"></i>
-        </span>
-        <% } else { %>
-        <span class="is-small" title="Is commissioner">
-          <i class="fa fa-user"></i>
-        </span>
-        <% } %>
-        <a href="/artists/<%- artist.id %>"><%- artist.name %></a>
+      <td><a href="/artists/<%- artist.id %>"><%- artist.name %></a>
         <% if (artist.urlReferences.some(url => url.aggregator != -1 && aggregators[url.aggregator].canFetch && url.status == 3)) { %>
-        <i class="fa-solid fa-triangle-exclamation has-text-danger" title="URL requires manual queue"></i>
+          <i class="fa-solid fa-triangle-exclamation has-text-danger" title="URL requires manual queue"></i>
         <% } %>
       </td>
       <td><%- artist.urls.length %></td>
@@ -56,10 +46,10 @@
         <button class="button is-success is-outlined is-small mr-1" id="queue-<%- artist.id %>" title="Queue scrape" onclick="queueScrape(event, <%- artist.id %>)"><i class="fa-solid fa-rotate has-text-success"></i></button>
         <button class="button is-success is-outlined is-small mr-1" id="queue-<%- artist.id %>" title="Queue E621 IQDB update" onclick="queueE621IqdbUpdate(event, <%- artist.id %>)"><i class="fa-solid fa-file-arrow-up has-text-success"></i></button>
         <% if (account.artistIds.find(a => a.equals(artist._id))) { %>
-        <button class="button is-danger is-outlined is-small mr-1" id="unwatch-<%- artist.id %>" title="Unwatch" onclick="unwatch(event, <%- artist.id %>)"><i class="fa-solid fa-eye-slash has-text-warning"></i></button>
+        <button class="button is-danger is-outlined is-small mr-1" id="unwatch-<%- artist.id %>" title="Unwatch" onclick="unwatch(event, <%- artist.id %>)"><i class="fa-solid fa-eye-slash has-text-danger"></i></button>
         <button class="button is-info is-outlined is-small mr-1 hidden" id="watch-<%- artist.id %>" title="Watch" onclick="watch(event, <%- artist.id %>)"><i class="fa-solid fa-eye has-text-info"></i></button>
         <% } else { %>
-        <button class="button is-danger is-outlined is-small mr-1 hidden" id="unwatch-<%- artist.id %>" title="Unwatch" onclick="unwatch(event, <%- artist.id %>)"><i class="fa-solid fa-eye-slash has-text-warning"></i></button>
+        <button class="button is-danger is-outlined is-small mr-1 hidden" id="unwatch-<%- artist.id %>" title="Unwatch" onclick="unwatch(event, <%- artist.id %>)"><i class="fa-solid fa-eye-slash has-text-danger"></i></button>
         <button class="button is-info is-outlined is-small mr-1" id="watch-<%- artist.id %>" title="Watch" onclick="watch(event, <%- artist.id %>)"><i class="fa-solid fa-eye has-text-info"></i></button>
         <% } %>
         <% if (account.admin) { %>
