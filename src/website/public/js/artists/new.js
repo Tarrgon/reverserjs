@@ -1,7 +1,7 @@
 async function addArtist(e) {
   e.preventDefault()
 
-  let data = { name: document.getElementById("name").value.trim(), urls: document.getElementById("urls").value.split("\n").map(u => u.trim()), notes: document.getElementById("notes").value.trim() }
+  let data = { name: document.getElementById("name").value.trim(), urls: document.getElementById("urls").value.split("\n").map(u => u.trim()), isCommissioner: document.getElementById("is-commissioner").checked, notes: document.getElementById("notes").value.trim() }
 
   if (data.name.length == 0 || urls.length == 0) {
     return 

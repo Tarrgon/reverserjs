@@ -70,7 +70,7 @@ router.get("/new", async (req: Request, res: Response) => {
 })
 
 router.post("/new", async (req: Request, res: Response) => {
-  let { name, urls, notes }: { name: string, urls: string[], notes: string } = req.body
+  let { name, urls, notes, isCommissioner }: { name: string, urls: string[], notes: string, isCommissioner: boolean } = req.body
 
   if (name.trim().length == 0) return res.status(400).send("No name provided")
 
@@ -78,7 +78,7 @@ router.post("/new", async (req: Request, res: Response) => {
 
   await req.account!.addTempArtist(name, urls)
 
-  Artist.create(req.account!, name, urls, notes)
+  Artist.create(req.account!, name, isCommissioner ?? false, urls, notes)
 
   return res.sendStatus(200)
 })

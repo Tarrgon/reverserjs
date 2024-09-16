@@ -251,7 +251,11 @@ class Submission {
 
     let artist = await this.getArtist()
 
-    let tags = [artist.name?.replaceAll(" ", "_")?.toLowerCase() ?? ""]
+    let tags: string[] = []
+
+    if (!artist.isCommissioner && artist.name) {
+      tags.push(artist.name)
+    }
 
     let sources: Set<string> = new Set([this.sourceUrl])
 
