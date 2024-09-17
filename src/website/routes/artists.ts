@@ -36,16 +36,21 @@ router.get("/", async (req: Request, res: Response) => {
   //   headers: req.headers
   // })
 
-  let query = await Utils.processArtistSearchQuery(req.query)
+  try {
+    let query = await Utils.processArtistSearchQuery(req.query)
 
-  let { artists, totalPages } = await req.account!.getWatchedArtists(query, true)
-  res.render("artists/index", {
-    artists,
-    totalPages,
-    account: req.account,
-    aggregators: Globals.aggregationManager.aggregators,
-    headers: req.headers
-  })
+    let { artists, totalPages } = await req.account!.getWatchedArtists(query, true)
+    res.render("artists/index", {
+      artists,
+      totalPages,
+      account: req.account,
+      aggregators: Globals.aggregationManager.aggregators,
+      headers: req.headers
+    })
+  } catch (e) {
+    console.error(e)
+    res.sendStatus(500)
+  }
 })
 
 router.get("/listing", async (req: Request, res: Response) => {

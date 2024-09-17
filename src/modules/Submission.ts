@@ -572,6 +572,10 @@ class Submission {
     if (query._id) {
       if (query._id["$in"]) query._id["$in"].push(...ids)
       else query._id["$in"] = ids
+    } else {
+      query._id = {
+        "$in": ids
+      }
     }
 
     return (await Globals.db.collection("submissions").find(query).toArray()).map(s => Submission.fromDoc(s))

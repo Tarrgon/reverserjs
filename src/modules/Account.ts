@@ -277,13 +277,13 @@ class Account {
 
       let artists = await Artist.findManyByObjectId(this.artistIds, q)
 
-      let a: (Artist | WebifiedArtist)[] = []
+      let a: (Artist | Promise<WebifiedArtist>)[] = []
 
       for (let i = start; i < this.artistIds.length; i++) {
         let art = artists.find(a => a._id.equals(this.artistIds[i]))
         if (art) {
           if (andWebify) {
-            a.push(await art.webify())
+            a.push(art.webify())
           } else {
             a.push(art)
           }
@@ -292,20 +292,20 @@ class Account {
         if (a.length >= ARTIST_LISTING_LIMIT) break
       }
 
-      return { artists: a, totalPages }
+      return { artists: await Promise.all(a), totalPages }
     } else {
       let start = (this.artistIds.length - 1) - (ARTIST_LISTING_LIMIT * (query.page - 1))
       if (start < 0) return { artists: [], totalPages }
 
       let artists = await Artist.findManyByObjectId(this.artistIds, q)
 
-      let a: (Artist | WebifiedArtist)[] = []
+      let a: (Artist | Promise<WebifiedArtist>)[] = []
 
       for (let i = start; i >= 0; i--) {
         let art = artists.find(a => a._id.equals(this.artistIds[i]))
         if (art) {
           if (andWebify) {
-            a.push(await art.webify())
+            a.push(art.webify())
           } else {
             a.push(art)
           }
@@ -314,7 +314,7 @@ class Account {
         if (a.length >= ARTIST_LISTING_LIMIT) break
       }
 
-      return { artists: a, totalPages }
+      return { artists: await Promise.all(a), totalPages }
     }
   }
 

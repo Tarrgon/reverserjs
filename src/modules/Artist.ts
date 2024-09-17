@@ -44,6 +44,7 @@ class Artist {
   }
 
   async webify(): Promise<WebifiedArtist> {
+    let now = Date.now()
     // @ts-ignore
     let doc: WebifiedArtist = new Artist()
     for (let [key, value] of Object.entries(this)) {
@@ -428,7 +429,18 @@ class Artist {
   }
 
   static async findManyByObjectId(ids: ObjectId[], additionalQuery: any = {}): Promise<Artist[]> {
-    return Artist.fromDocs(await Globals.db.collection("artists").find({ _id: { $in: ids }, ...additionalQuery }).toArray())
+    let query = additionalQuery
+
+    if (query._id) {
+      if (query._id["$in"]) query._id["$in"].push(...ids)
+      else query._id["$in"] = ids
+    } else {
+      query._id = {
+        "$in": ids
+      }
+    }
+
+    return Artist.fromDocs(await Globals.db.collection("artists").find(query).toArray())
   }
 
   static findByQuery(query: any): FindCursor<Document> {
