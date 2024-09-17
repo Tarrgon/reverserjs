@@ -567,7 +567,14 @@ class Submission {
   }
 
   static async findManyByObjectId(ids: ObjectId[], additionalQuery: any = {}): Promise<Submission[]> {
-    return (await Globals.db.collection("submissions").find({ _id: { $in: ids }, ...additionalQuery }).toArray()).map(s => Submission.fromDoc(s))
+    let query = additionalQuery
+
+    if (query._id) {
+      if (query._id["$in"]) query._id["$in"].push(...ids)
+      else query._id["$in"] = ids
+    }
+
+    return (await Globals.db.collection("submissions").find(query).toArray()).map(s => Submission.fromDoc(s))
   }
 
   static async findManyById(forAccount: Account | null, ids: number[], limit: number, page: number, andWebify: boolean = false): Promise<Submission[] | WebifiedSubmission[]> {
