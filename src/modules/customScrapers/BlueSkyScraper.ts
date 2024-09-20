@@ -68,13 +68,16 @@ class BlueSkyScraper {
 
       for (let feedItem of feed.data.feed) {
         // if (feedItem.reply) continue
-        let record = (feedItem.post.record as { createdAt: string, text: string, embed: { $type: string, media: { images: { image: BlobRef }[] }, images: { image: BlobRef }[] } })
+        let record = (feedItem.post.record as { createdAt: string, text: string, embed: { $type: string, video: BlobRef, media: { images: { image: BlobRef }[] }, images: { image: BlobRef }[] } })
+
         let description: string = record.text
         let id = feedItem.post.uri.slice(feedItem.post.uri.lastIndexOf("/") + 1)
 
         let mediaUrls: string[] = []
 
-        if (record.embed.$type == "app.bsky.embed.recordWithMedia") {
+        if (record.embed.$type == "app.bsky.embed.video") {
+          mediaUrls = [`https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${artistUrl.apiIdentifier}&cid=${record.embed.video.ref.toString()}`]
+        } else if (record.embed.$type == "app.bsky.embed.recordWithMedia") {
           mediaUrls = record.embed.media.images.map(i => `https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${artistUrl.apiIdentifier}&cid=${i.image.ref.toString()}`)
         } else {
           mediaUrls = record.embed.images.map(i => `https://bsky.social/xrpc/com.atproto.sync.getBlob?did=${artistUrl.apiIdentifier}&cid=${i.image.ref.toString()}`)

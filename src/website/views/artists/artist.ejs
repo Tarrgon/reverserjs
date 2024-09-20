@@ -94,7 +94,7 @@
             <i id="queue-button-<%- url.id %>" class="fa-solid fa-rotate has-text-success" title="Queue scrape" style="cursor: pointer;" onclick="queueScrape(<%- url.id %>)"></i>
             <i id="queued-spinner-<%- url.id %>" class="fa-solid fa-spinner fa-spin has-text-warning hidden" title="Queued"></i>
             <% } else {%>
-            <i class="fa-solid fa-spinner fa-spin has-text-warning" title="<%- url.status == 1 ? "Queued" : "Scraping" %>"></i>
+            <i class="fa-solid fa-spinner fa-spin has-text-warning" title="<%- url.status == 1 ? "Queued" : "Scraping" %>" onclick="forceQueueScrape(event, <%- url.id %>)"></i>
             <% } %>
             <% } %>
             <i class="fa-solid fa-trash has-text-danger" title="Remove url" style="cursor: pointer;" onclick="removeUrlFromArtist(<%- artist.id %>, <%- url.id %>)"></i>

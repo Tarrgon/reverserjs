@@ -235,3 +235,9 @@ async function queueScrape(id) {
     alert("Error queuing url. Check console")
   }
 }
+
+function forceQueueScrape(event, id) {
+  if (!event.ctrlKey) return
+
+  queueScrape(id)
+}

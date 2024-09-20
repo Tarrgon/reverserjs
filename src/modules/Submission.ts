@@ -285,8 +285,16 @@ class Submission {
     // return `https://e621.net/uploads/new?upload_url=${encodeURIComponent(url)}&tags-artist=${artist.name?.replaceAll(" ", "_")?.toLowerCase() ?? ""}&tags=${tags.map(t => encodeURIComponent(t)).join("%20")}&sources=${Array.from(sources).map(s => encodeURIComponent(s)).join("%2C")}&description=${encodeURIComponent(description)}`
   }
 
-  queueE621IqdbCheck(priority: JobPriority = JobPriority.NORMAL): void {
+  async queueE621IqdbCheck(priority: JobPriority = JobPriority.NORMAL, queueSimilar: boolean = false): Promise<void> {
     if (!IQDB_EXTENSIONS.includes(this.extension)) return
+
+    if (queueSimilar) {
+      let similar = await this.getSimilar()
+      for (let iqdbHit of similar) {
+        let submission = await Submission.findById(iqdbHit.id)
+        submission?.queueE621IqdbCheck(JobPriority.IMMEDIATE)
+      }
+    }
 
     if (!this.isQueuedForE621IqdbCheck()) E621IqdbChecker.queueSubmission(this, priority)
   }
@@ -309,8 +317,16 @@ class Submission {
     return E621IqdbChecker.indexFor(this.md5)
   }
 
-  async queueE621IqdbCheckAndWait(): Promise<IqdbHit[]> {
+  async queueE621IqdbCheckAndWait(queueSimilar: boolean = false): Promise<IqdbHit[]> {
     if (!IQDB_EXTENSIONS.includes(this.extension)) return []
+
+    if (queueSimilar) {
+      let similar = await this.getSimilar()
+      for (let iqdbHit of similar) {
+        let submission = await Submission.findById(iqdbHit.id)
+        submission?.queueE621IqdbCheck(JobPriority.IMMEDIATE)
+      }
+    }
 
     return new Promise((resolve) => {
       E621IqdbChecker.queueSubmission(this, JobPriority.IMMEDIATE, resolve)
