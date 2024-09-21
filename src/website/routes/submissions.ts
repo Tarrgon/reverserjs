@@ -241,12 +241,12 @@ router.post("/:id/update", async (req: Request, res: Response) => {
   if (wait) {
     await submission.purgeE621IqdbHits(false)
 
-    let hits: WithHumanReadableSize<IqdbHit>[] = (await submission.queueE621IqdbCheckAndWait()).map(hit => Utils.addHumanReadableSize(hit))
+    let hits: WithHumanReadableSize<IqdbHit>[] = (await submission.queueE621IqdbCheckAndWait(true)).map(hit => Utils.addHumanReadableSize(hit))
 
     return res.json({ hits, submission })
   } else {
     await submission.purgeE621IqdbHits(false)
-    submission.queueE621IqdbCheck(JobPriority.IMMEDIATE)
+    submission.queueE621IqdbCheck(JobPriority.IMMEDIATE, true)
     return res.sendStatus(200)
   }
 })
