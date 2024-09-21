@@ -18,6 +18,17 @@ Basics:
 - `npm run build` to build
 - After building: `npm run start`
 
+You'll need to make yourself an admin account somehow, it doesn't come with one, might add that in the future. Easiest way to do that is to add this to `index.ts` right before `return app`
+
+```js
+let account = await Account.create("username", "password")
+Globals.db.collection("accounts").updateOne({ _id: account._id }, { $set: { admin: true } })
+```
+
+After you do that, build the project, run it, stop it, remove it, rebuild.
+
+Yes, it's stupid.
+
 You are recommended to use [vscode](https://code.visualstudio.com/) with the [eslint extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) as it will alert you to rule breaking code in real time.
 
 If you use vscode, and don't change the vscode workspace settings, the code will also be auto formatted based on the rules on file save. This can be disabled by setting the workspace setting from `"source.fixAll.eslint": "explicit"` to `"source.fixAll.eslint": "never"` if for whatever reason it's causing issues. This can be found in `.vscode/settings.json`
@@ -29,3 +40,6 @@ DA cannot be logged in to automatically due to aggressive captcha. However, this
 - Authorize the app on your account
 - Assuming the redirect URI is correct, the server will take care of the rest, which will consist of authorizing the code and saving the refresh token
 - Restart reverser
+
+FurAffinity:
+FA is an absolute *bitch*. Assuming your credentials are correct, every 2 weeks, you will need to complete a captcha. This will be forcefully redirected to for admin accounts. And only admin accounts can do them. Typically all you need to do is click a few squares, then click continue, after which the page will die and the login will be complete.
