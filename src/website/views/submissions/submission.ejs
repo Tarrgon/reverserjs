@@ -3,7 +3,7 @@
 <html>
 
 <head>
-  <title>Yiff Today - Aggregation</title>
+  <title>Reverser - Submission <% if (submission.title) { %> <%- submission.title %> <% } %> by <%- submission.artistReference.name %></title>
 
   <%- include("../partials/head", {navData: {active: "Submissions"}}); %>
 </head>

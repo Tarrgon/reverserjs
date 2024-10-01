@@ -14,6 +14,8 @@ export interface SiteData {
 type TempArtist = {
   name: string
   urls: string[]
+  notes: string
+  isCommissioner: boolean
 }
 
 export type AccountSettings = {
@@ -73,11 +75,11 @@ class Account {
     await Globals.db.collection("accounts").updateOne({ _id: this._id }, { $pull: { artistIds: artistId } })
   }
 
-  async addTempArtist(name: string, urls: string[]) {
+  async addTempArtist(name: string, urls: string[], notes: string, isCommissioner: boolean ) {
     name = name.trim()
     if (this.tempArtists.find(a => a.name == name)) return
 
-    let temp: TempArtist = { name, urls }
+    let temp: TempArtist = { name, urls, notes, isCommissioner }
     this.tempArtists.push(temp)
     await Globals.db.collection("accounts").updateOne({ _id: this._id }, { $push: { tempArtists: temp } })
   }
@@ -89,6 +91,10 @@ class Account {
 
     this.tempArtists.splice(index, 1)
     await Globals.db.collection("accounts").updateOne({ _id: this._id }, { $pull: { tempArtists: { name } } })
+  }
+
+  getTempArtist(name: string): TempArtist | undefined {
+    return this.tempArtists.find(t => t.name == name)
   }
 
   async addSubmissionToBacklog(submissionId: ObjectId): Promise<void> {

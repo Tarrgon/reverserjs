@@ -204,9 +204,28 @@
     if (!res.ok) {
       console.error(`Status: ${res.status}`)
       console.error(await res.text())
-      alert("Error deleting artist Check console.")
+      alert("Error deleting artist. Check console.")
     }
     else afterDelete(event, id)
+  }
+
+  async function retryArtist(event, artistName) {
+    let res = await fetch(`/artists/retry`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: artistName
+      })
+    })
+
+    if (!res.ok) {
+      console.error(`Status: ${res.status}`)
+      console.error(await res.text())
+      alert("Error retrying artist. Check console.")
+    }
+    else alert("Retrying...")
   }
 
   function selectAll(event) {

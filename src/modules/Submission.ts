@@ -254,7 +254,7 @@ class Submission {
     let tags: string[] = []
 
     if (!artist.isCommissioner && artist.name) {
-      tags.push(artist.name)
+      tags.push(artist.name.replaceAll(" ", "_"))
     }
 
     let sources: Set<string> = new Set([this.sourceUrl])

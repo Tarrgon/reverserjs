@@ -81,9 +81,27 @@ router.post("/new", async (req: Request, res: Response) => {
 
   urls = urls.filter(s => s.trim().length > 0 && Utils.normalizeUrl(s) != "INVALID_URL")
 
-  await req.account!.addTempArtist(name, urls)
+  await req.account!.addTempArtist(name, urls, notes, isCommissioner ?? false)
 
   Artist.create(req.account!, name, isCommissioner ?? false, urls, notes)
+
+  return res.sendStatus(200)
+})
+
+router.post("/retry", async (req: Request, res: Response) => {
+  let { name }: { name: string } = req.body
+
+  if (name.trim().length == 0) return res.status(400).send("No name provided")
+
+  let tempArtist = req.account!.getTempArtist(name)
+
+  if (!tempArtist) return res.status(404).send("Not found")
+
+  let artist = await Artist.findByName(name)
+
+  if (artist) return res.status(400).send("Artist already exists")
+
+  Artist.create(req.account!, tempArtist.name, tempArtist.isCommissioner, tempArtist.urls, tempArtist.notes)
 
   return res.sendStatus(200)
 })
