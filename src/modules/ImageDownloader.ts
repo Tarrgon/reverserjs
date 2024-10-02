@@ -50,7 +50,8 @@ class ImageDownloader {
 
     if (retries < 5) {
       await Utils.wait(1000)
-      return await ImageDownloader.download(source, headers, ++retries)
+      retries++
+      return await ImageDownloader.download(source, headers, retries)
     }
 
     return null
