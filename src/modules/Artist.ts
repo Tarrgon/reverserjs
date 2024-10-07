@@ -354,6 +354,12 @@ class Artist {
     if (existing) {
       await existing.addArtistUrls(createdBy, urls)
 
+      await createdBy.addWatchedArtist(existing._id)
+
+      for await (let account of Account.findByQuery({ "tempArtists.name": name })) {
+        await Account.fromDoc(account).removeTempArtist(name)
+      }
+
       return existing
     }
 
@@ -389,7 +395,7 @@ class Artist {
 
     delete Artist.BEING_ADDED[name]
 
-    await createdBy?.addWatchedArtist(artist._id)
+    await createdBy.addWatchedArtist(artist._id)
 
     for await (let account of Account.findByQuery({ "tempArtists.name": name })) {
       await Account.fromDoc(account).removeTempArtist(name)

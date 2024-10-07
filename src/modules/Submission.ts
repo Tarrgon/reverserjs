@@ -257,6 +257,10 @@ class Submission {
       tags.push(artist.name.replaceAll(" ", "_"))
     }
 
+    if (this.additionalData?.tags) {
+      tags.push(...this.additionalData.tags)
+    }
+
     let sources: Set<string> = new Set([this.sourceUrl])
 
     let allSimilar: Submission[] = [this]

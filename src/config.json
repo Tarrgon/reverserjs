@@ -146,6 +146,15 @@
       "allowedIPs": [
         "0.0.0.0"
       ]
+    },
+    {
+      "hostName": "picarto.tv",
+      "aliases": [
+        "www.picarto.tv"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
     }
   ],
   "imageDownloadIps": ["0.0.0.0"],
