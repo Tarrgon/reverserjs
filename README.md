@@ -5,7 +5,7 @@
 - [ ] Convert the file type detector to typescript
 - [ ] Convert the webm parser to typescript
 - [ ] Convert the main file to typescript (www.js, I used an old template I made for websites and haven't gotten to this yet)
-- [ ] Figure out a better way to login to DeviantArt
+- [x] Figure out a better way to login to DeviantArt
 - [ ] Code cleanup
 - [ ] I'd like to make the Aggregators not exist as they are basically all the same and just move them all to the new Scraper classes and just have all the logic in the scraper class and make a single aggregator class that can interact with a new Scraper interface that exposes all the necessary methods.
 
