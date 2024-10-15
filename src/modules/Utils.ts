@@ -691,6 +691,28 @@ class Utils {
   static mergeObjects(o1: any, o2: any): any {
     return merge(o1, o2)
   }
+
+  static async generateNewDiscordAttachmentUrl(url: string): Promise<string> {
+    let res = await fetch("https://discord.com/api/attachments/refresh-urls", {
+      method: "POST",
+      headers: {
+        "User-Agent": "DiscordBot",
+        "Content-Type": "application/json",
+        Authorization: `Bot ${Globals.config.discordBotToken}`
+      },
+      body: JSON.stringify({
+        attachment_urls: [url]
+      })
+    })
+
+    if (res.ok) {
+      let data = await res.json() as any
+      return data.refreshed_urls[0].refrefreshed
+    } else {
+      console.error(await res.text())
+      return url
+    }
+  }
 }
 
 export default Utils

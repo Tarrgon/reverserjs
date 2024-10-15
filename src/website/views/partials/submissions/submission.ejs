@@ -100,7 +100,11 @@
     </div>
     <div class="has-text-centered pb-2" style="margin-right: auto; margin-left: auto;">
       <a class="button is-link is-outlined is-small is-size-7 has-text-link" href="<%- submission.sourceUrl %>" target="_blank" title="Post source">SRC</a>
+      <% if (submission.directLinkOffsite.startsWith("https://cdn.discordapp.com/") && submission.directUrlExpired()) { %>
+      <a class="button is-link is-outlined is-small is-size-7 has-text-link" rel="noreferrer" href="/get_discord_media/<%- submission.id %>" target="_blank" title="Direct link external">DLE</a>
+      <% } else { %>
       <a class="button is-link is-outlined is-small is-size-7 has-text-link" rel="noreferrer" href="<%- submission.directLinkOffsite %>" target="_blank" title="Direct link external">DLE</a>
+      <% } %>
       <a class="button is-link is-outlined is-small is-size-7 has-text-link" href="<%- submission.getWebPath() %>" target="_blank" title="Direct link on-site">DLO</a>
       <a class="button is-link is-outlined is-small is-size-7 has-text-link" href=<%- submission.directLinkOffsite.startsWith("/") ? (submission.directLinkOffsite + "?redirect=https%3A%2F%2Fe621.net%2Fiqdb_queries%3Furl%3D%7Bvalue%7D") : `https://e621.net/iqdb_queries?url=${encodeURIComponent(submission.directLinkOffsite)}` %> target="_blank" title="E621 IQDB">RVS</a>
       <br />

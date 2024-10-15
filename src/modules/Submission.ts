@@ -237,6 +237,30 @@ class Submission {
     return E6_ALLOWED_EXTENSIONS.includes(this.extension)
   }
 
+  directUrlExpired(): boolean {
+    if (this.directLinkOffsite.startsWith("https://cdn.discordapp.com/")) {
+      let expiryTime = parseInt(new URL(this.directLinkOffsite).searchParams.get("ex") ?? "0") * 1000
+      if (Date.now() >= expiryTime) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  async regenerateDirectUrl(): Promise<string> {
+    if (this.directLinkOffsite.startsWith("https://cdn.discordapp.com/")) {
+      let expiryTime = parseInt(new URL(this.directLinkOffsite).searchParams.get("ex") ?? "0") * 1000
+      if (Date.now() >= expiryTime) {
+        this.directLinkOffsite = await Utils.generateNewDiscordAttachmentUrl(this.directLinkOffsite)
+
+        await Globals.db.collection("submissions").updateOne({ _id: this._id }, { $set: { directLinkOffsite: this.directLinkOffsite } })
+      }
+    }
+
+    return this.directLinkOffsite
+  }
+
   async getUploadUrl(forAccount: Account | null): Promise<string> {
     if (!this || !this.isUploadable?.()) return ""
     let description = forAccount?.settings?.descriptionTemplate ?? "{title}\n\n{description}"
@@ -283,6 +307,13 @@ class Submission {
 
     if (this.directLinkOffsite.startsWith("/utils/get_deviantart_download")) {
       url = await DeviantArtScraper.getDownloadLink(this.directLinkOffsite.slice(31), 9999)
+    }
+
+    if (this.directLinkOffsite.startsWith("https://cdn.discordapp.com/")) {
+      let expiryTime = parseInt(new URL(this.directLinkOffsite).searchParams.get("ex") ?? "0") * 1000
+      if (Date.now() >= expiryTime) {
+        url = await this.regenerateDirectUrl()
+      }
     }
 
     return `https://e621.net/uploads/new?upload_url=${encodeURIComponent(url)}&tags=${tags.map(t => encodeURIComponent(t)).join("%20")}&sources=${Array.from(sources).map(s => encodeURIComponent(s)).join("%2C")}&description=${encodeURIComponent(description)}`

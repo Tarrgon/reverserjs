@@ -120,7 +120,7 @@ class ArtFightScraper {
     }
   }
 
-  private static async makeRequest(path: string, params: Record<string, any> = {}): Promise<HTMLElement> {
+  private static async makeRequest(path: string, params: Record<string, any> = {}, isRetry: boolean = false): Promise<HTMLElement> {
     return new Promise(async (resolve, reject) => {
       let url = new URL(`https://artfight.net/${path}`)
 
@@ -134,8 +134,15 @@ class ArtFightScraper {
         headers: await ArtFightScraper.getHeaders(),
         onResolve: async (res: Response) => {
           if (!res.ok) {
+            console.log("Retrying ArtFight auth")
+            let text = await res.text()
+            if (!isRetry && text.includes("<meta http-equiv=\"refresh\" content=\"0;url='https://artfight.net/login'\" />")) {
+              ArtFightScraper.fetchNewTokensAt = new Date(0)
+              await ArtFightScraper.getToken(true)
+              return ArtFightScraper.makeRequest(path, params, true).then(resolve).catch(reject)
+            }
             console.error(`Error with ${url.toString()}`)
-            return reject(new Error(await res.text()))
+            return reject(new Error(text))
           }
 
           return resolve(Utils.getHtmlElement(await res.text()))

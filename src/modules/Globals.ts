@@ -32,6 +32,7 @@ export type Config = {
   weasylApiKey: string
   internal: { ssl: { privateKeyLocation: string, certificateLocation: string, chainLocation: string } }
   dataDirectory: string
+  discordBotToken: string
   imgDirectory?: string
   sampleDirectory?: string
   secure: boolean

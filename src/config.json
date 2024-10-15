@@ -155,6 +155,15 @@
       "allowedIPs": [
         "0.0.0.0"
       ]
+    },
+    {
+      "hostName": "piczel.tv",
+      "aliases": [
+        "www.piczel.tv"
+      ],
+      "allowedIPs": [
+        "0.0.0.0"
+      ]
     }
   ],
   "imageDownloadIps": ["0.0.0.0"],
