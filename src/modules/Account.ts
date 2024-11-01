@@ -408,9 +408,9 @@ class Account {
     return account
   }
 
-  static async authenticate(username: string, password: string): Promise<Account | undefined> {
+  static async authenticate(username: string, password: string): Promise<Account | undefined | false> {
     let account = await Account.findByUsername(username)
-    if (!account) return
+    if (!account) return false
     if (await bcrypt.compare(password, account.passwordHash)) return account
   }
 

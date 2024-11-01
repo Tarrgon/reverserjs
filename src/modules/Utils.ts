@@ -707,7 +707,7 @@ class Utils {
 
     if (res.ok) {
       let data = await res.json() as any
-      return data.refreshed_urls[0].refrefreshed
+      return data.refreshed_urls[0].refreshed
     } else {
       console.error(await res.text())
       return url

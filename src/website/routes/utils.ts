@@ -15,8 +15,8 @@ router.get("/get_deviantart_download/:id", async (req: Request, res: Response) =
 })
 
 router.get("/get_discord_media/:id", async (req: Request, res: Response) => {
-  let submission = await Submission.findById(parseInt(req.params.id))
-
+  let id = parseInt(req.params.id)
+  let submission = await Submission.findById(id)
   if (!submission) return res.sendStatus(404)
 
   return res.redirect(await submission.regenerateDirectUrl())

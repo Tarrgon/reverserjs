@@ -23,10 +23,41 @@ class DTextUtils {
     }
   }
 
-  private static innerText(element: HTMLElement | Node) {
+  private static innerText(element: HTMLElement | Node, options: any = {}) {
     if (element.childNodes.length > 0) {
       return Array.from(element.childNodes)
-        .map(DTextUtils.htmlToDText)
+        .map((item) => {
+          let text = DTextUtils.htmlToDText(item, options)
+          if (options.bolden && text.trim().length > 0) {
+            text = `[b] ${text} [/b]`
+          }
+
+          if (options.italicize && text.trim().length > 0) {
+            text = `[i] ${text} [/i]`
+          }
+
+          if (options.underline && text.trim().length > 0) {
+            text = `[u] ${text} [/u]`
+          }
+
+          if (options.o && text.trim().length > 0) {
+            text = `[o] ${text} [/o]`
+          }
+
+          if (options.s && text.trim().length > 0) {
+            text = `[s] ${text} [/s]`
+          }
+
+          if (options.super && text.trim().length > 0) {
+            text = `[sup] ${text} [/sup]`
+          }
+
+          if (options.sub && text.trim().length > 0) {
+            text = `[sub] ${text} [/sub]`
+          }
+
+          return text
+        })
         .filter(e => e)
         .join(" ")
         .replace(/\n /ug, "\n")
@@ -41,7 +72,7 @@ class DTextUtils {
     return DTextUtils.htmlToDText(element)
   }
 
-  public static htmlToDText(entry: Node | null): string {
+  public static htmlToDText(entry: Node | null, options: any = {}): string {
     if (entry === null) {
       return ""
     } else if (typeof entry === "string") {
@@ -50,14 +81,14 @@ class DTextUtils {
 
     switch (entry.rawTagName?.toUpperCase()) {
       case "B":
-      case "STRONG": return `[b] ${DTextUtils.innerText(entry)} [/b]`
+      case "STRONG": return `${DTextUtils.innerText(entry, { ...options, bolden: true })}`
       case "EM":
-      case "I": return `[i] ${DTextUtils.innerText(entry)} [/i]`
-      case "U": return `[u] ${DTextUtils.innerText(entry)} [/u]`
-      case "O": return `[o] ${DTextUtils.innerText(entry)} [/o]`
-      case "S": return `[s] ${DTextUtils.innerText(entry)} [/s]`
-      case "SUP": return `[sup] ${DTextUtils.innerText(entry)} [/sup]`
-      case "SUB": return `[sub] ${DTextUtils.innerText(entry)} [/sub]`
+      case "I": return `${DTextUtils.innerText(entry, { ...options, italicize: true })}`
+      case "U": return `${DTextUtils.innerText(entry, { ...options, underline: true })}`
+      case "O": return `${DTextUtils.innerText(entry, { ...options, o: true })}`
+      case "S": return `${DTextUtils.innerText(entry, { ...options, s: true })}`
+      case "SUP": return `${DTextUtils.innerText(entry, { ...options, super: true })}`
+      case "SUB": return `${DTextUtils.innerText(entry, { ...options, sub: true })}`
 
       case "A": return DTextUtils.getLink(entry as HTMLElement, true)
 

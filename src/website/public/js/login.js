@@ -13,5 +13,10 @@ async function login(e) {
     window.location = "/"
   } else {
     console.error(`Error logging in.`)
+    if (res.status == 401) alert(await res.text())
+    else {
+      console.error(await res.text())
+      alert("Error logging in, check console.")
+    }
   }
 }

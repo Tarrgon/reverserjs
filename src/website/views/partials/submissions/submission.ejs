@@ -101,7 +101,7 @@
     <div class="has-text-centered pb-2" style="margin-right: auto; margin-left: auto;">
       <a class="button is-link is-outlined is-small is-size-7 has-text-link" href="<%- submission.sourceUrl %>" target="_blank" title="Post source">SRC</a>
       <% if (submission.directLinkOffsite.startsWith("https://cdn.discordapp.com/") && submission.directUrlExpired()) { %>
-      <a class="button is-link is-outlined is-small is-size-7 has-text-link" rel="noreferrer" href="/get_discord_media/<%- submission.id %>" target="_blank" title="Direct link external">DLE</a>
+      <a class="button is-link is-outlined is-small is-size-7 has-text-link" rel="noreferrer" href="/utils/get_discord_media/<%- submission.id %>" target="_blank" title="Direct link external">DLE</a>
       <% } else { %>
       <a class="button is-link is-outlined is-small is-size-7 has-text-link" rel="noreferrer" href="<%- submission.directLinkOffsite %>" target="_blank" title="Direct link external">DLE</a>
       <% } %>
