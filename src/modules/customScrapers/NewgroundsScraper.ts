@@ -236,7 +236,8 @@ class NewgroundsScraper {
     } catch (e) {
       console.error(`ERROR GETTING NEWGROUNDS SUBMISSION: ${url}`)
       console.error(e)
-      return await NewgroundsScraper.getSubmission(url, retries++)
+      retries++
+      return await NewgroundsScraper.getSubmission(url, retries)
     }
   }
 
