@@ -46,37 +46,39 @@ class FurAffinityAggregator implements Aggregator {
     let promises: Promise<any>[] = []
 
     try {
-      for await (let media of FurAffinityScraper.getMedia(artistUrl.apiIdentifier)) {
-        if (promises.length >= 100) {
-          await Promise.all(promises)
-          promises.length = 0
+      for (let type of ["gallery", "scraps"]) {
+        for await (let media of FurAffinityScraper.getMedia(artistUrl.apiIdentifier, type as any)) {
+          if (promises.length >= 100) {
+            await Promise.all(promises)
+            promises.length = 0
+          }
+
+          if (media.createdAt < latestDate) {
+            break
+          }
+
+          if (media.mediaUrls.length <= 0) {
+            continue
+          }
+
+          for (let i = 0; i < media.mediaUrls.length; i++) {
+            let url = media.mediaUrls[i]
+            let p = ImageDownloader.queueDownload(url)
+
+            p.then(async (id) => {
+              if (id) {
+                let imageData = { ...id, source: this.submissionTemplate.replace("{siteArtistIdentifier}", artistUrl.urlIdentifier).replace("{siteSubmissionIdentifier}", media.id), directLinkOffsite: url, offsiteId: `${media.id}_${i}` }
+                let prom = Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, media.title, media.description, media.createdAt, imageData.width, imageData.height, imageData.fileSize, imageData.directLinkOffsite, imageData.extension)
+                promises.push(prom)
+              }
+            }).catch(console.error)
+
+            promises.push(p)
+          }
         }
 
-        if (media.createdAt < latestDate) {
-          break
-        }
-
-        if (media.mediaUrls.length <= 0) {
-          continue
-        }
-
-        for (let i = 0; i < media.mediaUrls.length; i++) {
-          let url = media.mediaUrls[i]
-          let p = ImageDownloader.queueDownload(url)
-
-          p.then(async (id) => {
-            if (id) {
-              let imageData = { ...id, source: this.submissionTemplate.replace("{siteArtistIdentifier}", artistUrl.urlIdentifier).replace("{siteSubmissionIdentifier}", media.id), directLinkOffsite: url, offsiteId: `${media.id}_${i}` }
-              let prom = Submission.create(artistUrl._id, imageData.offsiteId, imageData.source, imageData.md5, media.title, media.description, media.createdAt, imageData.width, imageData.height, imageData.fileSize, imageData.directLinkOffsite, imageData.extension)
-              promises.push(prom)
-            }
-          }).catch(console.error)
-
-          promises.push(p)
-        }
+        await Promise.all(promises)
       }
-
-      await Promise.all(promises)
 
       console.log(`Completed: ${artistUrl.url}`)
       return false

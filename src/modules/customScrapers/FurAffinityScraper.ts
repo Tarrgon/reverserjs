@@ -41,7 +41,7 @@ class FurAffinityScraper {
   private static cookieB: string = ""
 
   private static getRandomUserAgent(): string {
-    return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.${~~(Math.random() * 9999)} Safari/537.${~~(Math.random() * 99)}`
+    return `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.${~~(Math.random() * 9999)} Safari/537.${~~(Math.random() * 99)} Edg/130.0.0.${~~(Math.random() * 99)}`
   }
 
   static async getTokens(bypassCheck: boolean = false): Promise<{ cookieA: string, cookieB: string }> {
@@ -167,6 +167,8 @@ class FurAffinityScraper {
         headers: await FurAffinityScraper.getHeaders(data != null),
         onResolve: async (res: Response) => {
           // resolve("")
+          await Utils.wait(500)
+
           if (!res.ok) {
             console.log(res.headers)
             return reject(new Error(await res.text()))
@@ -179,28 +181,25 @@ class FurAffinityScraper {
     })
   }
 
-  private static async getSubmissionIds(apiIdentifier: string, page: number): Promise<string[]> {
-    let form: FormData | null = new FormData()
+  private static async getSubmissionIds(apiIdentifier: string, type: "gallery" | "scraps", page: number): Promise<string[]> {
+    // let form: FormData | null = new FormData()
 
-    form.set("page", page)
-    form.set("q", `@lower ${removePrefix(apiIdentifier.replaceAll("~", "-"), "-")}`)
-    form.set("order-by", "date")
-    form.set("order-direction", "desc")
-    form.set("range", "all")
-    form.set("rating-general", "on")
-    form.set("rating-mature", "on")
-    form.set("rating-adult", "on")
-    form.set("type-art", "on")
-    form.set("mode", "extended")
+    // form.set("page", page)
+    // form.set("q", `@lower ${removePrefix(apiIdentifier.replaceAll("~", "-"), "-")}`)
+    // form.set("order-by", "date")
+    // form.set("order-direction", "desc")
+    // form.set("range", "all")
+    // form.set("rating-general", "on")
+    // form.set("rating-mature", "on")
+    // form.set("rating-adult", "on")
+    // form.set("type-art", "on")
+    // form.set("mode", "extended")
 
     try {
-      let html = await FurAffinityScraper.makeRequest("https://www.furaffinity.net/search", "POST", form)
-      form = null
+      let html = await FurAffinityScraper.makeRequest(`https://www.furaffinity.net/${type}/${apiIdentifier}/${page}`, "GET")
       let root: HTMLElement | null = parse(html)
 
-      let relevant = Array.from(root.querySelectorAll("#browse-search figure")).filter((e: any) => {
-        return (Array.from(e.querySelectorAll("figcaption a"))[1] as any)?.textContent?.toLowerCase()?.replaceAll("_", "") == apiIdentifier.toLowerCase()
-      })
+      let relevant = Array.from(root.querySelectorAll("#gallery-gallery figure"))
 
       let ids = relevant.map((e: any) => e.getAttribute("id").split("-")[1]) as string[]
 
@@ -212,11 +211,11 @@ class FurAffinityScraper {
     }
   }
 
-  static async* getMedia(apiIdentifier: string): AsyncGenerator<Media, void> {
+  static async* getMedia(apiIdentifier: string, type: "gallery" | "scraps"): AsyncGenerator<Media, void> {
     let page = 1
 
     while (true) {
-      let ids = await FurAffinityScraper.getSubmissionIds(apiIdentifier, page++)
+      let ids = await FurAffinityScraper.getSubmissionIds(apiIdentifier, type, page++)
 
       if (ids.length == 0) {
         console.log("BREAK, NO IDS LEFT")
