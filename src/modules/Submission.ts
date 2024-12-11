@@ -484,6 +484,7 @@ class Submission {
 
     doc.artistUrlReference = await this.getArtistUrl()
     doc.artistReference = await doc.artistUrlReference.getArtist()
+    if (!doc.artistReference) throw new Error(`Artist reference for Submission id: ${this._id} not found.`)
     doc.artistReference!.urlReferences = await doc.artistReference!.getArtistUrls!()
     doc.aggregator = await this.getAggregator()
     doc.dateTime = DateTime.fromJSDate(doc.creationDate)

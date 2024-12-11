@@ -54,18 +54,26 @@ router.get("/", async (req: Request, res: Response) => {
 })
 
 router.get("/listing", async (req: Request, res: Response) => {
-  let query = await Utils.processArtistSearchQuery(req.query)
+  try {
+    let query = await Utils.processArtistSearchQuery(req.query)
 
-  let { artists, totalPages } = await Artist.getAllArtistsByQuery(query, true)
+    let { artists, totalPages } = await Artist.getAllArtistsByQuery(query, true)
 
-  res.render("artists/listing", {
-    artists,
-    totalPages,
-    account: req.account,
-    aggregators: Globals.aggregationManager.aggregators,
-    utils: Utils,
-    headers: req.headers
-  })
+    res.render("artists/listing", {
+      artists,
+      totalPages,
+      account: req.account,
+      aggregators: Globals.aggregationManager.aggregators,
+      utils: Utils,
+      headers: req.headers
+    })
+  } catch (e) {
+    console.error("Error loading artist listing")
+    console.error(req.query)
+    console.error(e)
+
+    res.render("error")
+  }
 })
 
 router.get("/new", async (req: Request, res: Response) => {

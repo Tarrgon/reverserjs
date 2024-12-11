@@ -12,39 +12,55 @@ import { JobPriority } from "../../modules/Job"
 const router = express.Router()
 
 router.get("/", async (req: Request, res: Response) => {
-  let query = await Utils.processSubmissionSearchQuery(req.query)
+  try {
+    let query = await Utils.processSubmissionSearchQuery(req.query)
 
-  let { submissions, totalPages } = await req.account!.getAllWatchedSubmissions(query, true) ?? { totalPages: 0, submissions: [] }
+    let { submissions, totalPages } = await req.account!.getAllWatchedSubmissions(query, true) ?? { totalPages: 0, submissions: [] }
 
-  res.render("submissions/index", {
-    submissions,
-    totalPages,
-    account: req.account,
-    aggregators: Globals.aggregationManager.aggregators,
-    humanSize: (size, options = {}) => {
-      return filesize(size, { standard: "jedec", ...options })
-    },
-    utils: Utils,
-    headers: req.headers
-  })
+    res.render("submissions/index", {
+      submissions,
+      totalPages,
+      account: req.account,
+      aggregators: Globals.aggregationManager.aggregators,
+      humanSize: (size, options = {}) => {
+        return filesize(size, { standard: "jedec", ...options })
+      },
+      utils: Utils,
+      headers: req.headers
+    })
+  } catch (e) {
+    console.error("Error loading submission listing (self)")
+    console.error(req.params)
+    console.error(e)
+
+    res.sendStatus(500)
+  }
 })
 
 router.get("/all", async (req: Request, res: Response) => {
-  let query = await Utils.processSubmissionSearchQuery(req.query)
+  try {
+    let query = await Utils.processSubmissionSearchQuery(req.query)
 
-  let { submissions, totalPages } = await Submission.getAllSubmissions(req.account!, query, true) ?? { totalPages: 0, submissions: [] }
+    let { submissions, totalPages } = await Submission.getAllSubmissions(req.account!, query, true) ?? { totalPages: 0, submissions: [] }
 
-  res.render("submissions/listing", {
-    submissions,
-    totalPages,
-    account: req.account,
-    aggregators: Globals.aggregationManager.aggregators,
-    humanSize: (size, options = {}) => {
-      return filesize(size, { standard: "jedec", ...options })
-    },
-    utils: Utils,
-    headers: req.headers
-  })
+    res.render("submissions/listing", {
+      submissions,
+      totalPages,
+      account: req.account,
+      aggregators: Globals.aggregationManager.aggregators,
+      humanSize: (size, options = {}) => {
+        return filesize(size, { standard: "jedec", ...options })
+      },
+      utils: Utils,
+      headers: req.headers
+    })
+  } catch (e) {
+    console.error("Error loading submission listing (all)")
+    console.error(req.params)
+    console.error(e)
+
+    res.sendStatus(500)
+  }
 })
 
 router.get("/:id/upload-url", async (req: Request, res: Response) => {
@@ -106,22 +122,30 @@ router.get("/:id.json", async (req: Request, res: Response) => {
 })
 
 router.get("/multiview", async (req: Request, res: Response) => {
-  let ids: number[] = (req.query.ids as string)?.split(",").map(s => parseInt(s)) ?? []
+  try {
+    let ids: number[] = (req.query.ids as string)?.split(",").map(s => parseInt(s)) ?? []
 
-  if (ids.length == 0) return res.sendStatus(400)
+    if (ids.length == 0) return res.sendStatus(400)
 
-  let submissions: WebifiedSubmission[] = await Submission.findManyById(req.account!, ids, Number.MAX_SAFE_INTEGER, 1, true)
+    let submissions: WebifiedSubmission[] = await Submission.findManyById(req.account!, ids, Number.MAX_SAFE_INTEGER, 1, true)
 
-  res.render("submissions/multiview", {
-    submissions: submissions,
-    account: req.account,
-    aggregators: Globals.aggregationManager.aggregators,
-    humanSize: (size, options = {}) => {
-      return filesize(size, { standard: "jedec", ...options })
-    },
-    utils: Utils,
-    headers: req.headers
-  })
+    res.render("submissions/multiview", {
+      submissions: submissions,
+      account: req.account,
+      aggregators: Globals.aggregationManager.aggregators,
+      humanSize: (size, options = {}) => {
+        return filesize(size, { standard: "jedec", ...options })
+      },
+      utils: Utils,
+      headers: req.headers
+    })
+  } catch (e) {
+    console.error("Error loading submission multiview")
+    console.error(req.params)
+    console.error(e)
+
+    res.sendStatus(500)
+  }
 })
 
 router.post("/regeneratesamples/many", async (req: Request, res: Response) => {
@@ -164,39 +188,46 @@ router.delete("/delete/many", async (req: Request, res: Response) => {
 })
 
 router.get("/:id", async (req: Request, res: Response) => {
-  let id = parseInt(req.params.id)
+  try {
+    let id = parseInt(req.params.id)
 
-  if (isNaN(id)) return res.status(400).send("Id is not a number.")
+    if (isNaN(id)) return res.status(400).send("Id is not a number.")
 
-  let submission = await Submission.findById(id)
+    let submission = await Submission.findById(id)
 
-  if (!submission) return res.status(404).send(`Submission ${id} not found.`)
+    if (!submission) return res.status(404).send(`Submission ${id} not found.`)
 
-  let similar: IqdbHit[] = await submission.getSimilar()
+    let similar: IqdbHit[] = await submission.getSimilar()
 
-  let similarSubmissions: (Partial<WithIqdbHit<WebifiedSubmission>>)[] = []
+    let similarSubmissions: (Partial<WithIqdbHit<WebifiedSubmission>>)[] = []
 
-  for (let hit of similar) {
-    let submission = await Submission.findById(hit.id) as Submission
-    similarSubmissions.push(await submission.withIqdbHit(req.account!, hit, true))
+    for (let hit of similar) {
+      let submission = await Submission.findById(hit.id) as Submission
+      similarSubmissions.push(await submission.withIqdbHit(req.account!, hit, true))
+    }
+
+    similarSubmissions.sort((a: any, b: any) => {
+      if (a.hit.score == b.hit.score) return b.creationDate.getTime() - a.creationDate.getTime()
+      return b.hit.score - a.hit.score
+    })
+
+    res.render("submissions/submission", {
+      submission: await submission.webify(req.account!),
+      account: req.account,
+      similar: similarSubmissions ?? [],
+      aggregators: Globals.aggregationManager.aggregators,
+      humanSize: (size, options = {}) => {
+        return filesize(size, { standard: "jedec", ...options })
+      },
+      utils: Utils,
+      headers: req.headers
+    })
+  } catch (e) {
+    console.error(`Error loading submission: ${req.params.id}`)
+    console.error(e)
+
+    res.sendStatus(500)
   }
-
-  similarSubmissions.sort((a: any, b: any) => {
-    if (a.hit.score == b.hit.score) return b.creationDate.getTime() - a.creationDate.getTime()
-    return b.hit.score - a.hit.score
-  })
-
-  res.render("submissions/submission", {
-    submission: await submission.webify(req.account!),
-    account: req.account,
-    similar: similarSubmissions ?? [],
-    aggregators: Globals.aggregationManager.aggregators,
-    humanSize: (size, options = {}) => {
-      return filesize(size, { standard: "jedec", ...options })
-    },
-    utils: Utils,
-    headers: req.headers
-  })
 })
 
 router.delete("/:id", async (req: Request, res: Response) => {

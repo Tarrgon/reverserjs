@@ -249,8 +249,8 @@ let submissionsFunctions = {
 
   undeleteAll: [
     async (event, ids) => {
-      let res = await fetch(`/submissions/delete/many`, {
-        method: "DELETE",
+      let res = await fetch(`/submissions/undelete/many`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
